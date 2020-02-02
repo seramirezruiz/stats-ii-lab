@@ -26,3 +26,5 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`RMarkdown` cheatsheet: https://tinyurl.com/uqoelrx <br>
 
 
+<img src="https://github.com/allisonhorst/stats-illustrations/blob/master/rstats-artwork/rmarkdown_wizards.png" alt="RMarkdown" class="center" width="1000"/> 
+<p align="right">illustration <a href="https://twitter.com/allison_horst">@allison_horst</a></p>
