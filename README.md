@@ -9,7 +9,7 @@ Repository for the Statistical Modeling &amp; Causal Inference 2020-I Tutorial
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Group 1: Wednesdays, 10-12, Computer Lab 1.61<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Group 2: Thursdays, 8-10, Room 3.61<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Group 3: Thursdays, 10-12, Computer Lab 1.61<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Group 4: Thursdays, 10-12, Computer Lab 1.61<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Group 4: Thursdays, 12-14, Computer Lab 1.61<br>
 
 ### Repository
 This repository will be used during the tutorial sessions for the Statistical Modeling &amp; Causal Inference course. In here you will find the lab slides, code tutorials, and materials for further reference. 
