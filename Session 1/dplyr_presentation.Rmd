@@ -1,0 +1,197 @@
+---
+title: "dplyr presentation"
+author: "Aje Joshua Ayodele (adapted by Marina Wyss)"
+output: html_document
+---
+##Loading the dataset _hflights_
+
+```{r setup, eval=FALSE}
+# hflights is a datframe that R loads as part of the hflights package
+# install the hflights package. 
+install.packages("hflights")
+```
+
+```{r, warning=FALSE, message=FALSE}
+#load the hflights, load dplyr
+library(hflights)
+library(dplyr)
+
+#get acquainted with the hflights dataset
+?hflights
+head(hflights)
+
+#check the names of the variables
+names(hflights)
+```
+
+##dplyr main functions (verbs)
+1. select() - returns a subset of the columns  
+2. filter() - returns a subset of the rows  
+3. arrange() - reorders the rows according to single or multiple variables  
+4. mutate() - add columns from existing data  
+5. summarise() or summarize() - reduces each group to a single row by calculating aggregate measures  
+6. group_by() - lets you define groups within your dataset  
+
+
+##select()
+
+####Print out two columns of hflights related to delay
+```{r}
+head(
+  select(hflights, "ArrDelay", "DepDelay")
+  )
+```
+
+####Print out the columns "Origin" up to "Cancelled" of hflights
+```{r}
+head(
+  select(hflights, Origin:Cancelled)
+  )
+
+#selecting using the column numbers (indexing)
+head(
+  select(hflights, 14:19)
+  )
+```
+
+###Helper functions for variable selection:
+* starts_with("X")
+* ends_with("X")
+* contains("X")
+
+####Use select() and a helper function to print out a tibble that contains just "ArrDelay" and "DepDelay" of hflights
+```{r}
+head(
+  select(hflights, contains("delay"))
+  )
+```
+
+##mutate()
+
+####Create a new column: GroundTime. This column is the sum of TaxiIn and TaxiOut columns
+```{r}
+# use the pipe operator for code clarity
+hflights <- hflights %>% 
+  mutate(GroundTime = TaxiIn + TaxiOut)
+```
+
+##filter()
+
+####Print out all flights in hflights that traveled 3000 or more miles
+```{r}
+longDistance <- hflights %>% 
+  filter(Distance > 3000)
+
+#see result
+summary(longDistance$Distance)
+```
+
+####Print out all flights that departed late but arrived ahead of schedule
+```{r}
+filteredFlights <- hflights %>% 
+  filter(DepDelay > 0, ArrDelay < 0)
+
+#see result
+head(
+  select(filteredFlights, DepDelay, ArrDelay)
+  )
+```
+
+####Find all of the flights that were cancelled after being delayed
+```{r}
+filteredFlights <- hflights %>% 
+  filter(DepDelay > 0, Cancelled == 1)
+
+#see result
+head(
+  select(filteredFlights, DepDelay, Cancelled)
+  )
+```
+
+
+##arrange()
+
+####Create a dataset of cancelled and delayed flights
+
+```{r}
+dtc <- hflights %>% 
+  filter(Cancelled == 1, 
+         !is.na(DepDelay))
+```
+
+####Arrange dtc by departure delays so that the shortest departure delay is at the top of the data set
+```{r}
+arrangedFlights <- dtc %>% 
+  arrange(DepDelay)
+
+#view result. select a few columns to view with the DepDelay column
+head(
+  select(arrangedFlights, DepTime, ArrTime, UniqueCarrier, DepDelay, FlightNum)
+)
+
+```
+
+##summarize() or summarise()
+
+####Print out a summary of hflights with a single variable, max_diversion: the longest Distance for diverted flights. 
+```{r}
+diverted <- hflights %>% 
+  filter(Diverted == 1) %>% 
+  summarise(max_diveresion = max(Distance))
+
+diverted
+```
+
+####Create a new df containing all flights flown by American Airlines (AA). Print out a summary of aa with the following variables:
+* n_flights : the total number of flights* 
+* n_canc : the total number of cancelled flights* 
+* avg_delay : the average arrival delay of flights whose delay is not NA*
+
+```{r}
+aa <- hflights %>% 
+  filter(UniqueCarrier == "AA") %>% 
+  summarise(n_flights = n(), 
+            n_canc = sum(Cancelled ==1), 
+            avg_delay = mean(ArrDelay, na.rm = TRUE))
+
+aa
+```
+
+##group_by()
+
+####Use group_by() to group hflights by UniqueCarrier. summarize() the grouped df with two summary variables:
+* p_canc, the percentage of cancelled flights  
+* avg_delay, the average arrival delay of flights whose delay does not equal NA  
+
+
+```{r}
+carrier <- hflights %>%
+  group_by(UniqueCarrier) %>%
+  summarize(p_canc = (mean(Cancelled)),
+            avg_delay = mean(ArrDelay, na.rm = TRUE)) %>%
+  arrange(avg_delay, p_canc)
+
+carrier
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
