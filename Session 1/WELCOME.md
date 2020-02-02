@@ -9,3 +9,20 @@
 - Assignment workflow - 10 mins
 - Brief `dplyr` review - 45 mins
 - Q&A and troubleshooting - 20 mins
+
+### Further references
+
+**For learning Git:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GitHub Desktop: https://tinyurl.com/wu9rjru <p>
+
+**For R and RMarkdown** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Reminder of the basics: https://tinyurl.com/vkebh2f <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`RMarkdown`: The definitive guide https://tinyurl.com/y4tyfqmg <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Data wrangling with `dplyr`: https://tinyurl.com/vyrv596 <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`dplyr` video tutorial: https://www.youtube.com/watch?v=jWjqLW-u3hc <p>
+  
+**Helpful cheatsheets** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Data wrangling with `dplyr` and `tidyr`: https://tinyurl.com/s6zxfqh <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`RMarkdown` cheatsheet: https://tinyurl.com/uqoelrx <br>
+
+
