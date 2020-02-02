@@ -1,4 +1,4 @@
-# Session 1 - Overview and introduction to counterfactual causality
+# Session 1 - Overview and Introduction to Counterfactual Causality
 
 ### Overview of the lab
 
