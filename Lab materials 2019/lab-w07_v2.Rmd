@@ -1,0 +1,228 @@
+ ---
+title: "Statistics II Lab - Spring 2019 - W07"
+author: "Gabriel Tarriba"
+date: "April 11, 2019"
+output: html_document
+---
+
+```{r include = FALSE, message=FALSE}
+source("packages.r")
+```
+
+# 0. Announcements
+  * Next week: Review Session for the Final Exam
+    * Feel free to post your questions on Moodle until Sunday, April 14!
+    * Otherwise: We'll talk about the key points of each session
+  * Lab sessions after the final exam
+    * April 25: Review of the assignments and R scripts of the course
+    * May 2 & 9: Advice for Final Data Project
+      * Feel free to send me your questions in advance
+  * New resource on Moodle (Lab section): WB's Impact evaluation handbook (lots of practical examples of the topics covered in this course!)
+
+# 2. Key takeaways from the lecture
+  * In RD we assume that treatment assignment near the cut-off point of the forcing variable is pretty much random
+    * Thus the comparison of outcomes of those barely above and below the threshold has a causal interpretation
+    * But as we move away from the cut-off point, comparisons between the groups turn more tricky due to non-random selection into the treatment group
+  * We need to specify functional form and bandwidth
+    * Don't mistake non-linearity for a discontinuity!
+  * Individuals shouldn't be able to choose on which side of the cut-off they land (no sorting!)
+  * Choosing the optimal bandwith: trade-off between bias and precision
+  * Diagnostics: sensitivity to alternative specifications, balance checks, placebo thresholds
+  * Sharp RD: D=0 for all untis before cut-off, D=1 for all units at (and after) cut-off
+  * Fuzzy RD: P(D=1) increases at cut-off
+    * Fuzzy RD is IV!
+```{r}
+# Good 6 min intro to RDD with a concrete examples (by Doug McKee, lecturer at Cornell University)
+browseURL("https://www.youtube.com/watch?v=tWRsYWSP3fM")
+```
+
+# 3. Walk-through of Simon's W07 R-script
+
+  *  Execute code through line 37 in the original script
+  
+```{r}
+# import data
+mlda <- read_dta("data/AEJfigs.dta") # data from http://masteringmetrics.com/resources/
+names(mlda)
+
+# recode age variable to be 0 at cutpoint
+mlda$age <- mlda$agecell - 21
+mlda$forcing <- mlda$age
+
+# create treatment indicator variable
+mlda$over21 <- ifelse(mlda$agecell >= 21,1,0)
+mlda$treatment <- mlda$over21
+
+# outcome variable: motor vehicle accidents death
+mlda$outcome <- mlda$mva
+
+```
+
+  * Example of sharp RD with common slope:
+
+```{r}
+
+# run linear model with common slope
+lin_common_slope <- lm(outcome ~ treatment + forcing, data = mlda)
+summary(lin_common_slope)
+
+# Plot forcing variable and motor vehicle deaths
+with(mlda, plot(forcing, outcome))
+
+# plot relationship
+plot(mlda$forcing, mlda$outcome, 
+     main = "Linear model with common slope", 
+     xlab = "Forcing variable", ylab = "MVA")
+curve(lin_common_slope$coefficient[1] + 
+        lin_common_slope$coefficient[2] + 
+        lin_common_slope$coefficient[3]*x,
+      0, 50, add = T, lwd = 3, col = "red") 
+curve(lin_common_slope$coefficient[1] + 
+        lin_common_slope$coefficient[3]*x,
+      -30, 0, add = T, lwd = 3, col = "blue")
+# curve adds to the previous plot
+# we're adding two simple lines using the equation y = a + bx, where x is NOT an object in our workspace, but whatever variable is on the x-axis
+# We use as arguments for the line equations the coefficients from our OLS regression above (coef1 = b0, coef2 = b1, coef3 = b2)
+lin_common_slope$coefficients
+lin_common_slope$coefficients[1]
+lin_common_slope$coefficients[2]
+lin_common_slope$coefficients[3]
+
+# Red line: line for T = 1, which means that the intercept is not just b0 but b0+b1 (b1 is the coefficient of the Treatment dummy)
+# Blue line: line for T=0, so the intercept is just b0 as Treatment is "switched off"
+# The red line is plotted for segment 0 to (pretty much) infinity, while the blue line is plotted for the segment "minus infinity" to 0
+# You can substitute the 50 for 2, and the -30 for -2, and you will get the same graph since the range of "forcing" is -2 to +2
+```
+  
+  * Example of sharp RD with different slopes (before/after threshold):
+  
+```{r}
+
+# run linear model with different slope
+lin_different_slope <- lm(outcome ~ treatment*forcing, data = mlda)
+summary(lin_different_slope)
+
+# plot relationship
+plot(mlda$forcing, mlda$outcome, 
+     main = "Linear model with different slopes", 
+     xlab = "Forcing variable", ylab = "MVA") 
+curve(lin_different_slope$coefficient[1] + 
+        lin_different_slope$coefficient[2] + 
+        lin_different_slope$coefficient[3]*x + 
+        lin_different_slope$coefficient[4]*x, 
+      0, 50, add = T, lwd = 3, col = "red")
+curve(lin_different_slope$coefficient[1] + 
+        lin_different_slope$coefficient[3]*x, 
+      -30, 0, add = T, lwd = 3, col = "blue")
+
+# Same as above, except that now we have four coefficients due to the interaction term (to which corresponds the last coefficient): 
+lin_different_slope$coefficients
+# Now the line when T=0 is simply: y = b0 + b2*x
+# Whereas the line when T=1 is: y = (b0 + b1) + (b2 + b3)*x
+# In other words: b1 captures the change in intercept at the cut-off (where T flips from 0 to 1)
+# ... while b3 captures the change in the slope
+
+```
+  
+  * Example of sharp RD with quadratic slope:
+
+```{r}
+quadratic <- lm(outcome ~ treatment + forcing + I(treatment*forcing) + I(forcing^2) + I(treatment*(forcing^2)), data = mlda)
+summary(quadratic)
+
+# Notice that we have the linear interaction term (treatment*forcing) plus the quadratic term forcing^2, alone and interacted
+
+plot(mlda$forcing, mlda$outcome, 
+     main = "Quadratic model", 
+     xlab = "Forcing variable", ylab = "MVA")
+curve(quadratic$coefficient[1] + 
+        quadratic$coefficient[2] + 
+        quadratic$coefficient[3]*x + 
+        quadratic$coefficient[4]*x + 
+        quadratic$coefficient[5]*(x^2) + 
+        quadratic$coefficient[6]*(x^2), 
+      0, 50, add = T, lwd = 3, col = "red") 
+curve(quadratic$coefficient[1] + 
+        quadratic$coefficient[3]*x + 
+        quadratic$coefficient[5]*(x^2), 
+      -30, 0, add = T, lwd = 3, col = "blue")
+
+# Line when T=0:  y = b0 + b2*x + b4*x^2
+# Line when T=1:  y = (b0 + b1) + (b2 + b3)*x + (b4 + b5)*x^2
+
+```
+  
+  * Non-parametric sharp RD: Local linear regression with triangular kernel
+  
+```{r}
+
+# If you want to know how local regression works, watch the following introduction video (10 min)
+browseURL("https://www.youtube.com/watch?v=Vf7oJ6z2LCc")
+# A more technical introduction
+browseURL("https://www.youtube.com/watch?v=ncF7ArjJFqM&t=3s")
+# Also:
+browseURL("https://en.wikipedia.org/wiki/Local_regression")
+# Imbens & Kalyanaraman (2012): Optimal bandwidth choice
+browseURL("https://academic.oup.com/restud/article/79/3/933/1533189")
+
+?RDestimate
+llr <- RDestimate(outcome ~ agecell, data = mlda, cutpoint = 21)
+
+summary(llr)
+plot(llr)
+title(main = "Motor Vehicle Accidents Death", xlab = "AGE",ylab = "Mortality rate from\nmotor vehicle accidents (per 100,000)")
+
+```
+  * Compare the estimates of the 4 models (linear, linear-different slopes, quadratic, local regression)
+  
+# 4. Hints for assignment 6 (the last one!)
+
+  * Problem 1. Partisan ties and resource allocation in Ghana
+```{r}
+dat1 <- read.csv("data/Ghana_RD.csv")
+```
+    + (a) Recode your forcing variable (center it at 0), do a scatterplot with forcing variable on x-axis and treatment variable on y-axis
+    + (b) Run linear model as in the W07 script, do scatterplot with lines using same commands as in script (or find out how to do the same with ggplot!)
+    + (c) Run a cubic model such that:
+    y = b0 + treatment + forcing + I(treatment*forcing) + I(forcing^2) + I(treatment*(forcing^2)) + I(treatment*(forcing^3)), data = dat)
+    + (d) Do as in line 95 of Simon's script (the Imbens-Kalyanamaran optimal bandwidth calculation is the default option when using RDestimate)
+    + (e) Compare the results of the different models and discuss falsification checks (slides 28-29
+    
+  * Problem 2. Effects of a pre- and post-natal health care policy
+```{r}
+dat2 <- readstata13::read.dta13("data/hospitals.dta")
+```
+
+```
+    + (a) First plot treatment variable and forcing variable, then do scatterplot with points colored according to group. You can find out how (it's not hard) here:
+```{r}
+# Scatterplots in ggplot
+# Look up the section "Change point shapes and colors manually"
+browseURL("http://www.sthda.com/english/wiki/ggplot2-scatter-plots-quick-start-guide-r-software-and-data-visualization#change-the-point-colorshapesize-manually")
+
+# This is an example from the mlda example (see above)
+# First the forcing variable and the treatment variable:
+
+plot(mlda$agecell, mlda$treatment) # looks like a sharp RD!
+
+# Now a scatterplot with controls in blue and treated units in red
+ggplot(mlda, aes(y = mva, x = agecell, color = as.factor(treatment))) + 
+  geom_point() + 
+  scale_color_manual(values=c("blue", "red"))
+
+```
+    + (b) Good ol' OLS will do here. Why is this NATE?
+    + (c) LOESS smoothing is done easily with ggplot, see the same link as above and check out the section "Add regression lines". Or adapt the example below (from the first example in the W07 script)
+
+```{r, message=FALSE, warnings = FALSE}
+# Again, this is an example using the mlda dataset described above
+
+ggplot(mlda, aes(y = mva, x = agecell, color = as.factor(treatment))) + 
+  geom_point() + 
+  scale_color_manual(values=c("blue", "red")) +
+  geom_smooth(method = "loess")
+  
+```
+    + (d) Plot any model, you might want to use RDestimate
+    + (e) Histogram (easy), then discuss what might be going on and why it might threaten our RD design
+    + (f) Similar to the last one
