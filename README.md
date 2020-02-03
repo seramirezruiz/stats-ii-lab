@@ -4,7 +4,7 @@ Repository for the Statistical Modeling &amp; Causal Inference 2020-I Tutorial
 
 ### Overview
 <b>Term:</b> Spring 2020<br>
-<b>Instructors:</b> Maryna Wyss and Sebastian Ramirez Ruiz<br>
+<b>Instructors:</b> Marina Wyss and Sebastian Ramirez Ruiz<br>
 <b>Location:</b> Hertie School, Berlin <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Group 1: Wednesdays, 10-12, Computer Lab 1.61<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Group 2: Thursdays, 8-10, Room 3.61<br>
