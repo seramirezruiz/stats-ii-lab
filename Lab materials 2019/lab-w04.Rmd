@@ -1,0 +1,95 @@
+ ---
+title: "Statistics II Lab - Spring 2019 - W03"
+author: "Gabriel Tarriba"
+date: "March 7, 2019"
+output: html_document
+---
+
+```{r include = FALSE}
+
+source("packages.r")
+library(stargazer)
+
+```
+
+### 1. Issues with Assignment 2
+
+* Any questions?
+
+### 2. Review of this week's content - Matching and weighting
+
+* Matching
+  + Intuition
+  + Types of matching (exact, non-exact)
+  + Propensity scores
+  + Matching algorithms
+* Weighting
+
+### 3. Walk-through of W04 R-script
+
+# Data manipulation in R:
+  + dplyr verbs: group_by, select, mutate, summarize, filter
+  + The pipe ( %>% )
+      
+```{r}
+# This chapter of R4DS might be helpful
+browseURL("https://r4ds.had.co.nz/transform.html")
+```
+  + Balance tables
+```{r}
+
+# This code (from W04, lines 42-45:
+ecls %>%
+  group_by(catholic) %>%
+  select(one_of(ecls_cov)) %>%
+  summarise_all(funs(mean(., na.rm = T)))
+
+# Does the same as this:
+ecls %>%
+  group_by(catholic) %>%
+  select('race_white', 'p5hmage', 'w3income', 'p5numpla', 'w3momed_hsb') %>%
+  summarise(mean_race = mean(race_white, na.rm = T),
+            mean_mage = mean(p5hmage, na.rm = T),
+            mean_income = mean(w3income, na.rm = T),
+            mean_numpla = mean(p5numpla, na.rm = T),
+            mean_momed = mean(w3momed_hsb, na.rm = T))
+```
+
+
+# Propensity score matching estimation:
+  * Estimate logit model (glm function)
+  * Extract predicted probabilities (predict function)
+  * Plotting predicted probs (create labels, use ggplot)
+  * Remove missing values 
+  * Matching estimation: How to interpret the summary?
+  * Create new dataset with matched obs
+  * Estimate mean difference in outcome var between groups
+
+```{r}
+# Check out the stargazer package to produce regression tables
+browseURL("https://cran.r-project.org/web/packages/stargazer/vignettes/stargazer.pdf")
+
+# A nice and short tutorial
+browseURL("http://www.princeton.edu/~otorres/NiceOutputR.pdf")
+```
+
+# Inverse Probability Weighting
+  * Get propensity scores (i.e. predicted probabilities)
+  * Create weights (1/p for treatment group, 1/(1-p) for control)
+  * Run logistic model with weights
+  * Compare to other models (using stargazer!)
+  
+# Assignment 3
+  * Problem 3
+    + (a) (i) Check covariate balance: Show the mean of variables in the treatment and control groups, in a table.
+    + (a) (ii) Estimate NATE as difference-in-means test, show confidence interval
+    + (b) Exact matching
+    + (c) Get propensity scores, show distribution of propensity scores for Control and Treatment
+    ```{r}
+    # Check out this short tutorial: 
+    browseURL("http://www.cookbook-r.com/Graphs/Plotting_distributions_(ggplot2)/")
+    ```
+    + (d) Show distribution of propensity scores of matched units, by Control and Treatment groups, and assess balance using balance table
+    + (e) Estimate ATT using IPW: Create weights, run logistic model with weights
+    
+ 
