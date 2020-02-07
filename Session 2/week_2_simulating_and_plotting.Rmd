@@ -1,0 +1,150 @@
+---
+title: "Simulating and plotting data"
+output: html_document
+---
+
+### Disclaimer
+You may adapt the code for your assignments, but please use different examples! We won't be able to give you points for copies.
+
+## Example 1: Salary, education and experience
+Let's assume that salary is an additive function of education and experience:
+```{r warning=FALSE, message=FALSE}
+library(dplyr)
+set.seed(123) # for consistent results
+
+# experience - 1000 samples with mean of 15 and of 4 (years)
+exp <- rnorm(1000, 15, 4) 
+
+# education - 1000 samples with mean of 12 and of 2 (years)
+educ <- rnorm(1000, 12, 2)
+
+# salary - 20,000 plus 100 times the product of experience and education (euro)
+salary <- 20000 + 100 * (exp*educ) 
+
+# join the dataset
+dat <- data.frame(exp, educ, salary) 
+```
+
+If we plot these variables, we can see that there's no relationship:
+```{r warning=FALSE, message=FALSE}
+library(ggplot2)
+
+salaryPlot <- ggplot(dat, aes(x = exp, y = educ)) +
+  geom_point() + 
+  xlab("Experience") + 
+  ylab("Education") +
+  geom_smooth(method = 'lm')
+
+salaryPlot
+```
+
+Now, let's control for salaries. We create a dataset with salaries around the mean:
+
+```{r }
+mean(dat$salary)
+
+dat <- dat %>% 
+  subset(salary >= 37500 & salary < 38500)
+```
+
+If we plot the relationship between experience and education again, but only for people with very similar salaries, we see something different - a negative relationship.
+
+```{r }
+meanSalaryPlot <- ggplot(dat, 
+                         aes(x = exp, y = educ)) +
+  geom_point() + 
+  xlab("Experience") + 
+  ylab("Education") +
+  geom_smooth(method = 'lm')
+
+meanSalaryPlot
+```
+
+
+## Example 2: Sex, height, and weight
+
+Let's think of sex, height, and weight as mutually-related variables:
+
+```{r }
+# sex - replicate male and female 500 times each 
+sex <- rep(c("male", "female"), each = 500) 
+
+# height - mean of 165 and sd of 7, plus 7 if the observation is male
+height <- rnorm(500, 165, 7) + 
+  10 * as.numeric(sex == "male") 
+
+# weight - a function of height plus a random disturbance with mean 0 and sd 7
+weight <- (height - 100) + rnorm(500, 0, 7)
+
+# join the data
+dat2 <- data.frame(sex, height, weight)
+```
+
+If we plot them all together, we see a positive relationship:
+
+```{r }
+heightWeight <- ggplot(dat2, 
+                       aes(x = weight, y = height)) +
+  geom_point() + 
+  xlab("Weight (kg)") + 
+  ylab("Height (cm)") +
+  geom_smooth(method = 'lm')
+
+heightWeight
+```
+
+Now, we can distinguish between men and women, but the relationship between weight and height persists within each group.
+
+```{r }
+heightWeightGender <- ggplot(dat2, 
+                             aes(x = weight, y = height, 
+                                 color = sex)) +
+  geom_point() + 
+  xlab("Weight (kg)") + 
+  ylab("Height (cm)") +
+  geom_smooth(method = 'lm')
+
+heightWeightGender
+```
+
+## Example 3: Gender, shoe size, income
+```{r }
+# gender - replicate male and female 500 times each
+gender <- rep(c("male", "female"), each = 500) 
+
+# shoe size - random number with mean 38 and sd 4, plus 4 if the observation is male
+shoeSize <- rnorm(1000, 38, 2) + 
+  4 * as.numeric(gender == "male") 
+
+# income - a random number with mean 25 and sd 2, plus 5 if the observation is male
+income = rnorm(1000, 25, 2) + 
+  5 * as.numeric(gender == "male") 
+
+dat3 <- data.frame(gender, shoeSize, income, 
+                   stringsAsFactors = FALSE)
+```
+
+If we plot the relationship between shoe size and income, there appears to be a positive relationship:
+
+```{r }
+shoePlot <- ggplot(dat3, 
+                   aes(x = shoeSize, y = income)) +
+  geom_point() +
+  geom_smooth(method = 'lm') + 
+  xlab("Shoe Size") + ylab("Income")
+
+shoePlot
+```
+
+But if we condition on gender, the relationship disappears:
+
+```{r }
+shoePlotGender <- ggplot(dat3, 
+                         aes(x = shoeSize, y = income, 
+                             color = gender)) +
+  geom_point() + 
+  geom_smooth(method = 'lm') +
+  xlab("Shoe Size") + ylab("Income") 
+
+shoePlotGender
+```

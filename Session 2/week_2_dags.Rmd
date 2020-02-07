@@ -1,0 +1,141 @@
+---
+title: "Causal Graphs in R"
+output: html_document
+---
+## ggdag
+
+### Reference links:
+
+1. https://ggdag.netlify.com/articles/intro-to-ggdag.html
+2. https://ggdag.netlify.com/articles/intro-to-dags.html
+3. https://ggdag.netlify.com/articles/bias-structures.html
+
+### Basics:
+
+```{r library, warning=FALSE, message=FALSE}
+library(ggdag)
+```
+
+#### Directed edge
+```{r fig.width = 5, fig.height = 4}
+dagify(y ~ x) %>% 
+  ggdag()
+```
+
+#### Bi-directed edge
+```{r fig.width = 5, fig.height = 4}
+dagify(y ~~ x) %>% 
+  ggdag()
+```
+
+#### Latent variable
+```{r fig.width = 5, fig.height = 4}
+dagify(y ~~ x) %>% 
+  ggdag_canonical() 
+```
+
+#### x is a confounder
+```{r fig.width = 5, fig.height = 4}
+dagify(y ~ x,
+       d ~ x,
+       y ~ d) %>% 
+  ggdag() 
+```
+
+#### x is a mediator
+```{r fig.width = 5, fig.height = 4}
+dagify(y ~ x,
+       x ~ d,
+       y ~ d) %>% 
+  ggdag() 
+```
+
+#### x is a collider
+```{r fig.width = 5, fig.height = 4}
+dagify(x ~ y,
+       x ~ d,
+       y ~ d) %>% 
+  ggdag()
+```
+
+### More complicated example:
+
+Let's say we're looking at the relationship between smoking and cardiac arrest. We might assume that smoking causes changes in cholesterol, which causes cardiac arrest:
+```{r }
+smoking_ca_dag <- dagify(cardiacarrest ~ cholesterol,
+                         cholesterol ~ smoking + weight,
+                         smoking ~ unhealthy,
+                         weight ~ unhealthy,
+                         labels = c("cardiacarrest" = "Cardiac\n Arrest", 
+                                    "smoking" = "Smoking",
+                                    "cholesterol" = "Cholesterol",
+                                    "unhealthy" = "Unhealthy\n Lifestyle",
+                                    "weight" = "Weight"),
+                         latent = "unhealthy",
+                         exposure = "smoking",
+                         outcome = "cardiacarrest")
+
+ggdag(smoking_ca_dag, # the dag object we created
+      text = FALSE, # this means the original names won't be shown
+      use_labels = "label") # instead use the new names
+```
+
+In this example, we:
+
+1. Used more meaningful variable names 
+2. Created a variable that was the result of two variables vs. just one (cholesterol) 
+3. Used the "labels" argument to rename our variables (this is useful if your desired final variable name is more than one word) 
+4. Specified which variables are latent, the exposure, and outcome 
+
+We can also highlight the pathways between variables:
+```{r }
+ggdag_paths(smoking_ca_dag, 
+            text = FALSE, 
+            use_labels = "label")
+```
+Or to show what happens when we condition on a variable. In this example, "fever" is a collider.
+```{r }
+fever_dag <- collider_triangle(x = "Influenza", 
+                               y = "Chicken Pox", 
+                               m = "Fever") 
+
+ggdag(fever_dag, 
+      text = FALSE, 
+      use_labels = "label")
+```
+
+We can see that flu and chickenpox are d-separated 
+```{r }
+ggdag_dseparated(fever_dag, 
+                 text = FALSE, 
+                 use_labels = "label")
+```
+
+What happens if we control for fever?
+```{r }
+ggdag_dseparated(fever_dag, 
+                 controlling_for = "m", 
+                 text = FALSE, 
+                 use_labels = "label")
+
+```
+
+We've induced an association between flu and chickenpox that wasn't there before. 
+
+And what happens if we control for descendants of a collider?
+
+```{r}
+dagify(fever ~ flu + pox, 
+       acetaminophen ~ fever,
+       labels = c("flu" = "Influenza",
+                  "pox" = "Chicken Pox",
+                  "fever" = "Fever",
+                  "acetaminophen" = "Acetaminophen")) %>% 
+  ggdag_dseparated(from = "flu", 
+                   to = "pox", 
+                   controlling_for = "acetaminophen",
+                   text = FALSE, 
+                   use_labels = "label")
+```
+
+Same result - there's now an association that wasn't there before.
