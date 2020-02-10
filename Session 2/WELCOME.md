@@ -22,7 +22,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Introduction to `ggdag`: https://ggdag.netlify.com/articles/intro-to-ggdag.html <p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Bias structures: https://ggdag.netlify.com/articles/bias-structures.html <p>
   
-**More info about `ggplot2`<br>
+**More info about `ggplot2`**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The complete `ggplot`tutorial: http://r-statistics.co/Complete-Ggplot2-Tutorial-Part1-With-R-Code.html <p>
 
 **Helpful cheatsheets** <br>
