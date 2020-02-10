@@ -26,9 +26,9 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The complete `ggplot`tutorial: http://r-statistics.co/Complete-Ggplot2-Tutorial-Part1-With-R-Code.html <p>
 
 **Helpful cheatsheets** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Data visualization with `ggplot`: https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Data wrangling with `dplyr` and `tidyr`: https://tinyurl.com/s6zxfqh <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`RMarkdown` cheatsheet: https://tinyurl.com/uqoelrx <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Data visualization with `ggplot`: https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf <p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Data wrangling with `dplyr` and `tidyr`: https://tinyurl.com/s6zxfqh <p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`RMarkdown` cheatsheet: https://tinyurl.com/uqoelrx <p>
 
 
 <img src="https://github.com/allisonhorst/stats-illustrations/blob/master/rstats-artwork/ggplot2_masterpiece.png" alt="ggplot2" class="center" width="1000"/> 
