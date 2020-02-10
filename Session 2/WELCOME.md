@@ -17,17 +17,17 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Data wrangling with `dplyr`: https://tinyurl.com/vyrv596 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`dplyr` video tutorial: https://www.youtube.com/watch?v=jWjqLW-u3hc <p>
 
-**For learning more about DAGs and `ggdag`:** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An Introduction to DAGs: https://ggdag.netlify.com/articles/intro-to-dags.html <p>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Introduction to `ggdag`: https://ggdag.netlify.com/articles/intro-to-ggdag.html <p>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Bias structures: https://ggdag.netlify.com/articles/bias-structures.html <p>
+**For learning more about DAGs and `ggdag`:** <p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An Introduction to DAGs: https://ggdag.netlify.com/articles/intro-to-dags.html <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Introduction to `ggdag`: https://ggdag.netlify.com/articles/intro-to-ggdag.html <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Bias structures: https://ggdag.netlify.com/articles/bias-structures.html <br>
   
-**More info about `ggplot2`**<br>
+**More info about `ggplot2`**<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The complete `ggplot`tutorial: http://r-statistics.co/Complete-Ggplot2-Tutorial-Part1-With-R-Code.html <p>
 
-**Helpful cheatsheets** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Data visualization with `ggplot`: https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf <p>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Data wrangling with `dplyr` and `tidyr`: https://tinyurl.com/s6zxfqh <p>
+**Helpful cheatsheets** <p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Data visualization with `ggplot`: https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Data wrangling with `dplyr` and `tidyr`: https://tinyurl.com/s6zxfqh <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`RMarkdown` cheatsheet: https://tinyurl.com/uqoelrx <p>
 
 
