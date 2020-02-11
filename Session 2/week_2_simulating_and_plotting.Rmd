@@ -6,12 +6,16 @@ output: html_document
 ### Disclaimer
 You may adapt the code for your assignments, but please use different examples! We won't be able to give you points for copies.
 
+```{r warning=FALSE, message=FALSE}
+library(dplyr) # data wrangling
+library(ggplot2) # plots
+set.seed(123) # for consistent results
+```
+
 ## Example 1: Salary, education and experience
 Let's assume that salary is an additive function of education and experience:
-```{r warning=FALSE, message=FALSE}
-library(dplyr)
-set.seed(123) # for consistent results
 
+```{r }
 # experience - 1000 samples with mean of 15 and of 4 (years)
 exp <- rnorm(1000, 15, 4) 
 
@@ -26,14 +30,12 @@ dat <- data.frame(exp, educ, salary)
 ```
 
 If we plot these variables, we can see that there's no relationship:
-```{r warning=FALSE, message=FALSE}
-library(ggplot2)
-
+```{r }
 salaryPlot <- ggplot(dat, aes(x = exp, y = educ)) +
   geom_point() + 
   xlab("Experience") + 
   ylab("Education") +
-  geom_smooth(method = 'lm')
+  geom_smooth(method = "lm", se = FALSE)
 
 salaryPlot
 ```
@@ -47,7 +49,7 @@ dat <- dat %>%
   subset(salary >= 37500 & salary < 38500)
 ```
 
-If we plot the relationship between experience and education again, but only for people with very similar salaries, we see something different - a negative relationship.
+If we plot the relationship between experience and education again, but only for people with very similar salaries, we see something different - a negative relationship between experience and education.
 
 ```{r }
 meanSalaryPlot <- ggplot(dat, 
@@ -55,57 +57,68 @@ meanSalaryPlot <- ggplot(dat,
   geom_point() + 
   xlab("Experience") + 
   ylab("Education") +
-  geom_smooth(method = 'lm')
+  geom_smooth(method = "lm", se = FALSE)
 
 meanSalaryPlot
 ```
 
-
-## Example 2: Sex, height, and weight
-
-Let's think of sex, height, and weight as mutually-related variables:
-
+## Example 2: Celebrity, beauty, and talent
 ```{r }
-# sex - replicate male and female 500 times each 
-sex <- rep(c("male", "female"), each = 500) 
+# beauty - 1000 observations with mean 5 and sd 1.5 (arbitrary scale)
+beauty <- rnorm(1000, 5, 1.5)
 
-# height - mean of 165 and sd of 7, plus 7 if the observation is male
-height <- rnorm(500, 165, 7) + 
-  10 * as.numeric(sex == "male") 
+# talent - 1000 observations with mean 3 and sd 1 (arbitrary scale)
+talent <- rnorm(1000, 3, 1)
 
-# weight - a function of height plus a random disturbance with mean 0 and sd 7
-weight <- (height - 100) + rnorm(500, 0, 7)
+# celebrity - binary
+celebrity <-  ifelse(beauty + talent > 8, "celeb" ,"not_celeb") 
 
-# join the data
-dat2 <- data.frame(sex, height, weight)
+dat <- data.frame(beauty, talent, celebrity, 
+                  stringsAsFactors = FALSE)
 ```
 
-If we plot them all together, we see a positive relationship:
+Again, without conditioning, we can't see a relationship.
 
 ```{r }
-heightWeight <- ggplot(dat2, 
-                       aes(x = weight, y = height)) +
-  geom_point() + 
-  xlab("Weight (kg)") + 
-  ylab("Height (cm)") +
-  geom_smooth(method = 'lm')
+celebPlot <- ggplot(dat, 
+                    aes(x = beauty, y = talent)) +
+    geom_point() +
+  xlab("Beauty") + 
+  ylab("Talent") +
+  geom_smooth(method = "lm", se = FALSE)
 
-heightWeight
+celebPlot
 ```
 
-Now, we can distinguish between men and women, but the relationship between weight and height persists within each group.
+What happens if we condition on celebrity?
 
 ```{r }
-heightWeightGender <- ggplot(dat2, 
-                             aes(x = weight, y = height, 
-                                 color = sex)) +
-  geom_point() + 
-  xlab("Weight (kg)") + 
-  ylab("Height (cm)") +
-  geom_smooth(method = 'lm')
+# we could either create a new data set with only celebrities:
+celebData <- dat %>% 
+  filter(celebrity == "celeb")
 
-heightWeightGender
+celebPlot2 <- ggplot(celebData, 
+                     aes(x = beauty, y = talent)) +
+    geom_point() +
+  xlab("Beauty") + 
+  ylab("Talent") +
+  geom_smooth(method = "lm", se = FALSE)
+
+celebPlot2
+
+# or add celebrity as a color aesthetic:
+celebPlot3 <- ggplot(dat, 
+                     aes(x = beauty, y = talent,
+                        col = celebrity)) +
+    geom_point() +
+  xlab("Beauty") + 
+  ylab("Talent") +
+  geom_smooth(method = "lm", se = FALSE)
+
+celebPlot3
 ```
+
+We can now see a negative relationship between talent and beauty.
 
 ## Example 3: Gender, shoe size, income
 ```{r }
@@ -130,8 +143,9 @@ If we plot the relationship between shoe size and income, there appears to be a 
 shoePlot <- ggplot(dat3, 
                    aes(x = shoeSize, y = income)) +
   geom_point() +
-  geom_smooth(method = 'lm') + 
-  xlab("Shoe Size") + ylab("Income")
+  geom_smooth(method = "lm", se = FALSE) + 
+  xlab("Shoe Size") + 
+  ylab("Income")
 
 shoePlot
 ```
@@ -143,8 +157,9 @@ shoePlotGender <- ggplot(dat3,
                          aes(x = shoeSize, y = income, 
                              color = gender)) +
   geom_point() + 
-  geom_smooth(method = 'lm') +
-  xlab("Shoe Size") + ylab("Income") 
+  geom_smooth(method = "lm", se = FALSE) +
+  xlab("Shoe Size") + 
+  ylab("Income") 
 
 shoePlotGender
 ```
