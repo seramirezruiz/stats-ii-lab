@@ -1,0 +1,83 @@
+---
+title: "Calculating NATE and ATE"
+output: html_document
+---
+
+## The effect of test prep on receiving a scholarship
+
+In this example, treatment (test prep) was not randomized.
+
+```{r prep, message=FALSE, warning=FALSE}
+library(tidyverse)
+
+data <- data.frame("gender" = c("male","male","female","female"),
+                   "testPrep" = c("Yes","No","Yes","No"),
+                   "scholarship" = c(5, 2, 18, 6),
+                   "noScholarship" = c(21, 32, 24, 11))
+```
+
+### NATE for the whole sample
+```{r }
+everyone <- data %>% 
+  group_by(testPrep) %>% 
+  summarize(scholarship = sum(scholarship),
+            noScholarship = sum(noScholarship)) %>% 
+  mutate(shareScholarship = scholarship/(scholarship + noScholarship)) %>% 
+  select(testPrep, shareScholarship) %>% 
+  spread(testPrep, shareScholarship) %>% 
+  mutate(NATE = Yes - No)
+
+everyone$NATE
+```
+
+The NATE of test prep for everyone was positive, with an 18.1% increased share receiving a scholarship.
+
+### Conditioned on gender
+```{r }
+byGender <- data %>% 
+  mutate(shareScholarship = scholarship/(scholarship + noScholarship)) %>% 
+  select(gender, testPrep, shareScholarship) %>%
+  spread(testPrep, shareScholarship) %>% 
+  mutate(NATE = Yes - No) %>% 
+  select(gender, NATE)
+
+byGender
+```
+
+We can see that NATE was larger for male students (13.35%) than female students (7.6%).
+
+### ATE
+
+We can calculate the ATE by taking a weighted average of the NATE, weighted by the proportion of subjects who are male and female.
+
+```{r }
+# NATE by gender
+nateMale <- byGender %>% 
+  filter(gender == "male") %>% 
+  pull(NATE)
+
+nateFemale <- byGender %>% 
+  filter(gender == "female") %>% 
+  pull(NATE)
+
+# proportion of subjects male/female
+genderTotals <- data %>% 
+  group_by(gender) %>% 
+  summarize(total = sum(scholarship) + sum(noScholarship)) %>% 
+  mutate(prop = total / sum(total))
+
+propMale <- genderTotals %>% 
+  filter(gender == "male") %>% 
+  pull(prop)
+
+propFemale <- genderTotals %>% 
+  filter(gender == "female") %>% 
+  pull(prop)
+
+# calculating ATE
+ATE <- (propFemale * nateFemale) + (propMale * nateMale)
+
+ATE
+```
+
+The ATE tells us that receiving test prep increases the chance of receiving a scholarship by 10.5%.
