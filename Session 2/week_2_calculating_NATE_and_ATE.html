@@ -7,7 +7,6 @@
 <meta charset="utf-8" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
-<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
 
@@ -70,7 +69,9 @@ h6 {
 </style>
 
 
+</head>
 
+<body>
 
 <style type="text/css">
 .main-container {
@@ -84,6 +85,7 @@ code {
 }
 img {
   max-width:100%;
+  height: auto;
 }
 .tabbed-pane {
   padding-top: 12px;
@@ -100,6 +102,8 @@ summary {
 </style>
 
 
+
+<div class="container-fluid main-container">
 
 <!-- tabsets -->
 
@@ -157,17 +161,20 @@ summary {
 }
 </style>
 
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
 <!-- code folding -->
 
-
-
-
-</head>
-
-<body>
-
-
-<div class="container-fluid main-container">
 
 
 
@@ -181,77 +188,199 @@ summary {
 </div>
 
 
-<div id="the-effect-of-test-prep-on-receiving-a-scholarship" class="section level2">
-<h2>The effect of test prep on receiving a scholarship</h2>
-<p>In this example, treatment (test prep) was not randomized.</p>
+<div id="the-effect-of-meth-use-in-scholarship-attainment-also-known-as-the-meth-user-students-paradox" class="section level2">
+<h2>The effect of meth use in scholarship attainment (Also known as the meth user student’s paradox (?))</h2>
+<p>You are working at the Ministry of Education of the Republic of Brillante. Professor Walter White approaches the Ministry with his new study stating that methanphetamine use leads to scholarship attainment. The results convince Minister Jessy Pinkman, who wants to move forward with meth-use encouraging legislation. You have a hunch that there may be something else behind the results, so you dive in the data. This is what you find:</p>
+<table style="width:97%;">
+<colgroup>
+<col width="19%"></col>
+<col width="19%"></col>
+<col width="19%"></col>
+<col width="19%"></col>
+<col width="19%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th>Groups</th>
+<th>Scholarship &amp; Meth use</th>
+<th>No Scholarship &amp; Meth use</th>
+<th>Scholarship &amp; No Meth use</th>
+<th>No Scholarship &amp; No Meth use</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Female</td>
+<td>1</td>
+<td>19</td>
+<td>2</td>
+<td>30</td>
+</tr>
+<tr class="even">
+<td>Male</td>
+<td>15</td>
+<td>30</td>
+<td>9</td>
+<td>13</td>
+</tr>
+<tr class="odd">
+<td>Total</td>
+<td>16</td>
+<td>49</td>
+<td>11</td>
+<td>43</td>
+</tr>
+</tbody>
+</table>
 <pre class="r"><code>library(tidyverse)
 
-data &lt;- data.frame(&quot;gender&quot; = c(&quot;male&quot;,&quot;male&quot;,&quot;female&quot;,&quot;female&quot;),
-                   &quot;testPrep&quot; = c(&quot;Yes&quot;,&quot;No&quot;,&quot;Yes&quot;,&quot;No&quot;),
-                   &quot;scholarship&quot; = c(5, 2, 18, 6),
-                   &quot;noScholarship&quot; = c(21, 32, 24, 11))</code></pre>
+data &lt;- data.frame(&quot;Gender&quot;=c(&quot;Female&quot;,&quot;Female&quot;,&quot;Male&quot;,&quot;Male&quot;),
+                         &quot;Meth&quot;=c(&quot;Yes&quot;,&quot;No&quot;,&quot;Yes&quot;,&quot;No&quot;),
+                         &quot;Scholarship&quot;=c(1,2,15,9),
+                         &quot;NoScholarship&quot;=c(19,30,30,13))</code></pre>
 <div id="nate-for-the-whole-sample" class="section level3">
 <h3>NATE for the whole sample</h3>
-<pre class="r"><code>everyone &lt;- data %&gt;% 
-  group_by(testPrep) %&gt;% 
-  summarize(scholarship = sum(scholarship),
-            noScholarship = sum(noScholarship)) %&gt;% 
-  mutate(shareScholarship = scholarship/(scholarship + noScholarship)) %&gt;% 
-  select(testPrep, shareScholarship) %&gt;% 
-  spread(testPrep, shareScholarship) %&gt;% 
-  mutate(NATE = Yes - No)
+<table>
+<thead>
+<tr class="header">
+<th>Groups</th>
+<th>Scholarship</th>
+<th>No Scholarship</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Meth consumption</td>
+<td>16</td>
+<td>49</td>
+<td>65</td>
+</tr>
+<tr class="even">
+<td>No meth consumption</td>
+<td>11</td>
+<td>43</td>
+<td>54</td>
+</tr>
+</tbody>
+</table>
+<p><span class="math display">\[Proportion\,of\,scholaships_{in\,group} = \frac{Scholarship\,_{ingroup}}{Total_{ingroup}}\]</span> For example, for the group that did meth: <span class="math display">\[Proportion\,of\,scholaships_{meth\,heads} = \frac{16}{65} = 0.246\]</span> For the group that did not do meth: <span class="math display">\[Proportion\,of\,scholaships_{notestprep} = \frac{11}{54} = 0.204\]</span> In this case, if we were to look at meth use and scholarship attainment, our naive average treatment effect (NATE) would be <span class="math display">\[NATE = 0.246 - 0.204 = 0.042\]</span> or in percentage notation 4.2 percentage points. <strong>Could it be that meth use makes us more prone to obtain scholarships? Could Professor Walter White be right?</strong></p>
+<pre class="r"><code># A tidy approach of what we did manually
+
+everyone &lt;- data %&gt;% 
+  group_by(Meth) %&gt;% #group the data by meth and non-meth use
+  summarize(Scholarship = sum(Scholarship), #sum those who received scholarships
+            NoScholarship = sum(NoScholarship)) %&gt;% #sum those who did not receive scholarships
+  mutate(ShareScholarship = Scholarship/(Scholarship + NoScholarship)) %&gt;% #create a new column with the proportion
+  select(Meth, ShareScholarship) %&gt;% #selecting only column containing whether meth was used or not 
+  spread(Meth, ShareScholarship) %&gt;% #transposing data
+  mutate(NATE = Yes - No) #NATE = use - non use
 
 everyone$NATE</code></pre>
-<pre><code>## [1] 0.1813725</code></pre>
-<p>The NATE of test prep for everyone was positive, with an 18.1% increased share receiving a scholarship.</p>
+<pre><code>## [1] 0.04245014</code></pre>
+<p>The NATE of meth use for everyone was positive.</p>
 </div>
 <div id="conditioned-on-gender" class="section level3">
 <h3>Conditioned on gender</h3>
-<pre class="r"><code>byGender &lt;- data %&gt;% 
-  mutate(shareScholarship = scholarship/(scholarship + noScholarship)) %&gt;% 
-  select(gender, testPrep, shareScholarship) %&gt;%
-  spread(testPrep, shareScholarship) %&gt;% 
-  mutate(NATE = Yes - No) %&gt;% 
-  select(gender, NATE)
+<table>
+<thead>
+<tr class="header">
+<th>Sex</th>
+<th>Meth use</th>
+<th>Scholarship</th>
+<th>No Scholarship</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Male</td>
+<td>Yes</td>
+<td>15</td>
+<td>30</td>
+<td>45</td>
+</tr>
+<tr class="even">
+<td>Male</td>
+<td>No</td>
+<td>9</td>
+<td>13</td>
+<td>22</td>
+</tr>
+<tr class="odd">
+<td>Female</td>
+<td>Yes</td>
+<td>1</td>
+<td>19</td>
+<td>20</td>
+</tr>
+<tr class="even">
+<td>Female</td>
+<td>No</td>
+<td>2</td>
+<td>30</td>
+<td>32</td>
+</tr>
+</tbody>
+</table>
+<p>It is your hunch that gender differences are behind Professor White’s results. If we follow the same logic but we take the subject’s sex into account we will get the naive average treatment effect for each group:</p>
+<p><span class="math display">\[Proportion\,of\,scholaships^{sex}_{group} = \frac{Scholarship^{sex}_{group}}{Total^{sex}_{group}} \]</span></p>
+<p>Such that for females who did meth:</p>
+<p><span class="math display">\[Proportion\,of\,scholaships^{female}_{meth\,use} = \frac{Scholarship^{female}_{meth\,use}}{Total^{female}_{meth\,use}} = \frac{1}{19} = 0.053 \]</span> And, females who did not do meth:</p>
+<p><span class="math display">\[Proportion\,of\,scholaships^{female}_{no\,meth\,use} = \frac{Scholarship^{female}_{no\,meth\,use}}{Total^{female}_{no\,meth\,use}} = \frac{2}{30} = 0.067 \]</span></p>
+<p>Our NATE for females would be <span class="math display">\[NATE_{females} = 0.053 - 0.067 = -0.014\]</span> or in percentage notation -1.4 percentage points. You can do the same for males <strong>(R provides a slightly different estimate because we rounded to three decimal points in the previous steps)</strong></p>
+<pre class="r"><code># A tidy approach for what we did manually
+byGender &lt;- data %&gt;% 
+  mutate(shareScholarship = Scholarship/(Scholarship + NoScholarship)) %&gt;% # getting proportions
+  select(Gender, Meth, shareScholarship) %&gt;% # selecting columns containing gender, whether meth was used, and proportions
+  spread(Meth, shareScholarship) %&gt;% #transposing data
+  mutate(NATE = Yes - No) %&gt;% #creating new column containing NATE for each gender
+  select(Gender, NATE) #selecting columns gender and NATE
 
 byGender</code></pre>
-<pre><code>##   gender       NATE
-## 1 female 0.07563025
-## 2   male 0.13348416</code></pre>
-<p>We can see that NATE was larger for male students (13.35%) than female students (7.6%).</p>
+<pre><code>##   Gender        NATE
+## 1 Female -0.01250000
+## 2   Male -0.07575758</code></pre>
+<p>We can see that the NATE is negative for both men and women. <strong>How can it be possible that meth use has a positive effect on scholarship attainment overall, but it is negative for both men and women?</strong></p>
 </div>
 <div id="ate" class="section level3">
 <h3>ATE</h3>
-<p>We can calculate the ATE by taking a weighted average of the NATE, weighted by the proportion of subjects who are male and female.</p>
+<p>We can calculate the ATE by taking a weighted average of the NATE, weighted by the proportion of subjects who are male and female. We know that we have 52 females and 67 males. Hence:</p>
+<p><span class="math display">\[Proportion\,of\,gender = \frac{Subjects\,of\,gender}{Total\,subjects}\]</span> The proportion of male subjects would be:</p>
+<p><span class="math display">\[Proportion\,of\,males = \frac{Male\,subjects}{Total\,subjects} = \frac{67}{119} = 0.563\]</span> The proportion of female subjects would be: <span class="math display">\[Proportion\,of\,females = \frac{Female\,subjects}{Total\,subjects} = \frac{52}{119} = 0.437\]</span></p>
+<p>Our Average Treatment Effect would be the treatment effect for the population (think of the EU funding example), so:</p>
+<p><span class="math display">\[ATE = \pi_{females}NATE + \pi_{males}NATE\]</span></p>
+<p>For this example, our ATE would be: <span class="math display">\[ATE = 0.437(-0.0125)\, +\, 0.563(-0.0757) = -0.0481\]</span></p>
 <pre class="r"><code># NATE by gender
 nateMale &lt;- byGender %&gt;% 
-  filter(gender == &quot;male&quot;) %&gt;% 
+  filter(Gender == &quot;Male&quot;) %&gt;% 
   pull(NATE)
 
 nateFemale &lt;- byGender %&gt;% 
-  filter(gender == &quot;female&quot;) %&gt;% 
+  filter(Gender == &quot;Female&quot;) %&gt;% 
   pull(NATE)
 
 # proportion of subjects male/female
 genderTotals &lt;- data %&gt;% 
-  group_by(gender) %&gt;% 
-  summarize(total = sum(scholarship) + sum(noScholarship)) %&gt;% 
+  group_by(Gender) %&gt;% 
+  summarize(total = sum(Scholarship) + sum(NoScholarship)) %&gt;% 
   mutate(prop = total / sum(total))
 
 propMale &lt;- genderTotals %&gt;% 
-  filter(gender == &quot;male&quot;) %&gt;% 
+  filter(Gender == &quot;Male&quot;) %&gt;% 
   pull(prop)
 
 propFemale &lt;- genderTotals %&gt;% 
-  filter(gender == &quot;female&quot;) %&gt;% 
+  filter(Gender == &quot;Female&quot;) %&gt;% 
   pull(prop)
 
 # calculating ATE
 ATE &lt;- (propFemale * nateFemale) + (propMale * nateMale)
 
 ATE</code></pre>
-<pre><code>## [1] 0.1048003</code></pre>
-<p>The ATE tells us that receiving test prep increases the chance of receiving a scholarship by 10.5%.</p>
+<pre><code>## [1] -0.04811561</code></pre>
+<p>The ATE tells us that the effect is actually negative. It appears that the students’ sex is driving both meth use and scholarship attainment ie. a confounder. Hence, when we only look at the relationship between meth use and scholarship attainment, we see a positive “effect”. Once we account (control) for the confounder, we can see the true relationship.</p>
+<p><strong>Note: Though this example may be more or less intuitive, (we do not expect meth use to have a positive effect in general), the policy world we navigate may have manifestations of the same phenomenon on a less intuitive manner. It is up to us, policy-makers, policy-analysts, scholars, data scientists, etc., to uncover the true mechanisms behind these relationships.</strong></p>
 </div>
 </div>
 
@@ -272,23 +401,6 @@ $(document).ready(function () {
 
 
 </script>
-
-<!-- tabsets -->
-
-<script>
-$(document).ready(function () {
-  window.buildTabsets("TOC");
-});
-
-$(document).ready(function () {
-  $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
-  });
-});
-</script>
-
-<!-- code folding -->
-
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

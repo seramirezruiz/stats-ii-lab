@@ -3,10 +3,11 @@
 ### Overview of the lab
 
 - Questions about `Assignment 1` - 5 mins
-- Brief review of core concepts from lecture - 10 mins
-- Creating plots with `ggplot2` -  30 mins
-- Creating and plotting simulated data - 30 mins
-- Plotting DAGs with `ggdag` - 30 mins
+- Brief review of core concepts from lecture - 15 mins
+- Calculating the NATE and ATE - 25
+- Creating plots with `ggplot2` -  20 mins
+- Creating and plotting simulated data - 20 mins
+- Plotting DAGs with `ggdag` - 20 mins
 
 
 ### Further references
