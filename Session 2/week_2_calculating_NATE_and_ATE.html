@@ -191,6 +191,54 @@ $(document).ready(function () {
 <div id="the-effect-of-meth-use-in-scholarship-attainment-also-known-as-the-meth-user-students-paradox" class="section level2">
 <h2>The effect of meth use in scholarship attainment (Also known as the meth user student’s paradox (?))</h2>
 <p>You are working at the Ministry of Education of the Republic of Brillante. Professor Walter White approaches the Ministry with his new study stating that methanphetamine use leads to scholarship attainment. The results convince Minister Jessy Pinkman, who wants to move forward with meth-use encouraging legislation. You have a hunch that there may be something else behind the results, so you dive in the data. This is what you find:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Groups</th>
+<th>Scholarship</th>
+<th>No Scholarship</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Meth consumption</td>
+<td>16</td>
+<td>49</td>
+<td>65</td>
+</tr>
+<tr class="even">
+<td>No meth consumption</td>
+<td>11</td>
+<td>43</td>
+<td>54</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>library(tidyverse)
+
+data &lt;- data.frame(&quot;Gender&quot;=c(&quot;Female&quot;,&quot;Female&quot;,&quot;Male&quot;,&quot;Male&quot;),
+                         &quot;Meth&quot;=c(&quot;Yes&quot;,&quot;No&quot;,&quot;Yes&quot;,&quot;No&quot;),
+                         &quot;Scholarship&quot;=c(1,2,15,9),
+                         &quot;NoScholarship&quot;=c(19,30,30,13))</code></pre>
+<div id="nate-for-the-whole-sample" class="section level3">
+<h3>NATE for the whole sample</h3>
+<p><span class="math display">\[Proportion\,of\,scholaships_{in\,group} = \frac{Scholarship\,_{ingroup}}{Total_{ingroup}}\]</span> For example, for the group that did meth: <span class="math display">\[Proportion\,of\,scholaships_{meth\,heads} = \frac{16}{65} = 0.246\]</span> For the group that did not do meth: <span class="math display">\[Proportion\,of\,scholaships_{notestprep} = \frac{11}{54} = 0.204\]</span> In this case, if we were to look at meth use and scholarship attainment, our naive average treatment effect (NATE) would be <span class="math display">\[NATE = 0.246 - 0.204 = 0.042\]</span> or in percentage notation 4.2 percentage points. <strong>Could it be that meth use makes us more prone to obtain scholarships? Could Professor Walter White be right?</strong></p>
+<pre class="r"><code># A tidy approach of what we did manually
+
+everyone &lt;- data %&gt;% 
+  group_by(Meth) %&gt;% #group the data by meth and non-meth use
+  summarize(Scholarship = sum(Scholarship), #sum those who received scholarships
+            NoScholarship = sum(NoScholarship)) %&gt;% #sum those who did not receive scholarships
+  mutate(ShareScholarship = Scholarship/(Scholarship + NoScholarship)) %&gt;% #create a new column with the proportion
+  select(Meth, ShareScholarship) %&gt;% #selecting only column containing whether meth was used or not 
+  spread(Meth, ShareScholarship) %&gt;% #transposing data
+  mutate(NATE = Yes - No) #NATE = use - non use
+
+everyone$NATE</code></pre>
+<pre><code>## [1] 0.04245014</code></pre>
+<p>The NATE of meth use for everyone was positive.</p>
+<p>You manage to access the gender disaggregated data from his study:</p>
 <table style="width:97%;">
 <colgroup>
 <col width="19%"></col>
@@ -232,56 +280,10 @@ $(document).ready(function () {
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>library(tidyverse)
-
-data &lt;- data.frame(&quot;Gender&quot;=c(&quot;Female&quot;,&quot;Female&quot;,&quot;Male&quot;,&quot;Male&quot;),
-                         &quot;Meth&quot;=c(&quot;Yes&quot;,&quot;No&quot;,&quot;Yes&quot;,&quot;No&quot;),
-                         &quot;Scholarship&quot;=c(1,2,15,9),
-                         &quot;NoScholarship&quot;=c(19,30,30,13))</code></pre>
-<div id="nate-for-the-whole-sample" class="section level3">
-<h3>NATE for the whole sample</h3>
-<table>
-<thead>
-<tr class="header">
-<th>Groups</th>
-<th>Scholarship</th>
-<th>No Scholarship</th>
-<th>Total</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Meth consumption</td>
-<td>16</td>
-<td>49</td>
-<td>65</td>
-</tr>
-<tr class="even">
-<td>No meth consumption</td>
-<td>11</td>
-<td>43</td>
-<td>54</td>
-</tr>
-</tbody>
-</table>
-<p><span class="math display">\[Proportion\,of\,scholaships_{in\,group} = \frac{Scholarship\,_{ingroup}}{Total_{ingroup}}\]</span> For example, for the group that did meth: <span class="math display">\[Proportion\,of\,scholaships_{meth\,heads} = \frac{16}{65} = 0.246\]</span> For the group that did not do meth: <span class="math display">\[Proportion\,of\,scholaships_{notestprep} = \frac{11}{54} = 0.204\]</span> In this case, if we were to look at meth use and scholarship attainment, our naive average treatment effect (NATE) would be <span class="math display">\[NATE = 0.246 - 0.204 = 0.042\]</span> or in percentage notation 4.2 percentage points. <strong>Could it be that meth use makes us more prone to obtain scholarships? Could Professor Walter White be right?</strong></p>
-<pre class="r"><code># A tidy approach of what we did manually
-
-everyone &lt;- data %&gt;% 
-  group_by(Meth) %&gt;% #group the data by meth and non-meth use
-  summarize(Scholarship = sum(Scholarship), #sum those who received scholarships
-            NoScholarship = sum(NoScholarship)) %&gt;% #sum those who did not receive scholarships
-  mutate(ShareScholarship = Scholarship/(Scholarship + NoScholarship)) %&gt;% #create a new column with the proportion
-  select(Meth, ShareScholarship) %&gt;% #selecting only column containing whether meth was used or not 
-  spread(Meth, ShareScholarship) %&gt;% #transposing data
-  mutate(NATE = Yes - No) #NATE = use - non use
-
-everyone$NATE</code></pre>
-<pre><code>## [1] 0.04245014</code></pre>
-<p>The NATE of meth use for everyone was positive.</p>
 </div>
 <div id="conditioned-on-gender" class="section level3">
 <h3>Conditioned on gender</h3>
+<p>It is your hunch that gender differences are behind Professor White’s results. If we follow the same logic but we take the subject’s sex into account we will get the naive average treatment effect for each group:</p>
 <table>
 <thead>
 <tr class="header">
@@ -323,12 +325,11 @@ everyone$NATE</code></pre>
 </tr>
 </tbody>
 </table>
-<p>It is your hunch that gender differences are behind Professor White’s results. If we follow the same logic but we take the subject’s sex into account we will get the naive average treatment effect for each group:</p>
 <p><span class="math display">\[Proportion\,of\,scholaships^{sex}_{group} = \frac{Scholarship^{sex}_{group}}{Total^{sex}_{group}} \]</span></p>
 <p>Such that for females who did meth:</p>
-<p><span class="math display">\[Proportion\,of\,scholaships^{female}_{meth\,use} = \frac{Scholarship^{female}_{meth\,use}}{Total^{female}_{meth\,use}} = \frac{1}{19} = 0.053 \]</span> And, females who did not do meth:</p>
-<p><span class="math display">\[Proportion\,of\,scholaships^{female}_{no\,meth\,use} = \frac{Scholarship^{female}_{no\,meth\,use}}{Total^{female}_{no\,meth\,use}} = \frac{2}{30} = 0.067 \]</span></p>
-<p>Our NATE for females would be <span class="math display">\[NATE_{females} = 0.053 - 0.067 = -0.014\]</span> or in percentage notation -1.4 percentage points. You can do the same for males <strong>(R provides a slightly different estimate because we rounded to three decimal points in the previous steps)</strong></p>
+<p><span class="math display">\[Proportion\,of\,scholaships^{female}_{meth\,use} = \frac{Scholarship^{female}_{meth\,use}}{Total^{female}_{meth\,use}} = \frac{1}{20} = 0.05 \]</span> And, females who did not do meth:</p>
+<p><span class="math display">\[Proportion\,of\,scholaships^{female}_{no\,meth\,use} = \frac{Scholarship^{female}_{no\,meth\,use}}{Total^{female}_{no\,meth\,use}} = \frac{2}{32} = 0.0625 \]</span></p>
+<p>Our NATE for females would be <span class="math display">\[NATE_{females} = 0.05 - 0.0625 = -0.0125\]</span> or in percentage notation <strong>-1.25 percentage points</strong>. You can do the same for males.</p>
 <pre class="r"><code># A tidy approach for what we did manually
 byGender &lt;- data %&gt;% 
   mutate(shareScholarship = Scholarship/(Scholarship + NoScholarship)) %&gt;% # getting proportions

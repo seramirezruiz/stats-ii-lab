@@ -7,11 +7,10 @@ output: html_document
 
 You are working at the Ministry of Education of the Republic of Brillante. Professor Walter White approaches the Ministry with his new study stating that methanphetamine use leads to scholarship attainment. The results convince Minister Jessy Pinkman, who wants to move forward with meth-use encouraging legislation. You have a hunch that there may be something else behind the results, so you dive in the data. This is what you find: 
 
-| Groups       | Scholarship & Meth use  | No Scholarship & Meth use | Scholarship & No Meth use | No Scholarship &  No Meth use |   
-|------------- | ------------- | ------------- | ------------- |------------- |
-|Female        | 1             | 19            | 2             | 30           |
-|Male          | 15            | 30            | 9             | 13           |
-|Total         | 16            | 49            | 11            | 43           |
+|    Groups    |  Scholarship  |  No Scholarship  | Total  |
+|--------------|---------------|------------------|--------|
+|   Meth consumption   |  16           |  49              | 65     |
+|  No meth consumption  |  11          |  43              | 54     |
 
 
 ```{r prep, message=FALSE, warning=FALSE}
@@ -25,10 +24,6 @@ data <- data.frame("Gender"=c("Female","Female","Male","Male"),
 
 ### NATE for the whole sample
 
-|    Groups    |  Scholarship  |  No Scholarship  | Total  |
-|--------------|---------------|------------------|--------|
-|   Meth consumption   |  16           |  49              | 65     |
-|  No meth consumption  |  11          |  43              | 54     |
 
 $$Proportion\,of\,scholaships_{in\,group} = \frac{Scholarship\,_{ingroup}}{Total_{ingroup}}$$
 For example, for the group that did meth:
@@ -55,7 +50,17 @@ everyone$NATE
 
 The NATE of meth use for everyone was positive. 
 
+You manage to access the gender disaggregated data from his study:
+
+| Groups       | Scholarship & Meth use  | No Scholarship & Meth use | Scholarship & No Meth use | No Scholarship &  No Meth use |   
+|------------- | ------------- | ------------- | ------------- |------------- |
+|Female        | 1             | 19            | 2             | 30           |
+|Male          | 15            | 30            | 9             | 13           |
+|Total         | 16            | 49            | 11            | 43           |
+
 ### Conditioned on gender
+
+It is your hunch that gender differences are behind Professor White's results. If we follow the same logic but we take the subject's sex into account we will get the naive average treatment effect for each group:
 
 | Sex       | Meth use | Scholarship | No Scholarship | Total |
 |------------- | ------|-------------|----------------|-------|
@@ -64,19 +69,16 @@ The NATE of meth use for everyone was positive.
 | Female       | Yes   |    1       | 19             | 20    | 
 | Female       | No    |    2        | 30             | 32    |
 
-
-It is your hunch that gender differences are behind Professor White's results. If we follow the same logic but we take the subject's sex into account we will get the naive average treatment effect for each group:
-
 $$Proportion\,of\,scholaships^{sex}_{group} = \frac{Scholarship^{sex}_{group}}{Total^{sex}_{group}} $$
 
 Such that for females who did meth: 
 
-$$Proportion\,of\,scholaships^{female}_{meth\,use} = \frac{Scholarship^{female}_{meth\,use}}{Total^{female}_{meth\,use}} = \frac{1}{19} = 0.053 $$
+$$Proportion\,of\,scholaships^{female}_{meth\,use} = \frac{Scholarship^{female}_{meth\,use}}{Total^{female}_{meth\,use}} = \frac{1}{20} = 0.05 $$
 And, females who did not do meth: 
 
-$$Proportion\,of\,scholaships^{female}_{no\,meth\,use} = \frac{Scholarship^{female}_{no\,meth\,use}}{Total^{female}_{no\,meth\,use}} = \frac{2}{30} = 0.067 $$
+$$Proportion\,of\,scholaships^{female}_{no\,meth\,use} = \frac{Scholarship^{female}_{no\,meth\,use}}{Total^{female}_{no\,meth\,use}} = \frac{2}{32} = 0.0625 $$
 
-Our NATE for females would be $$NATE_{females} = 0.053 - 0.067 = -0.014$$ or in percentage notation -1.4 percentage points. You can do the same for males  **(R provides a slightly different estimate because we rounded to three decimal points in the previous steps)**
+Our NATE for females would be $$NATE_{females} = 0.05 - 0.0625 = -0.0125$$ or in percentage notation **-1.25 percentage points**. You can do the same for males.
 
 ```{r }
 # A tidy approach for what we did manually
