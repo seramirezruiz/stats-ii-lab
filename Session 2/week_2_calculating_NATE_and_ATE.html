@@ -350,7 +350,7 @@ byGender</code></pre>
 <p><span class="math display">\[Proportion\,of\,gender = \frac{Subjects\,of\,gender}{Total\,subjects}\]</span> The proportion of male subjects would be:</p>
 <p><span class="math display">\[Proportion\,of\,males = \frac{Male\,subjects}{Total\,subjects} = \frac{67}{119} = 0.563\]</span> The proportion of female subjects would be: <span class="math display">\[Proportion\,of\,females = \frac{Female\,subjects}{Total\,subjects} = \frac{52}{119} = 0.437\]</span></p>
 <p>Our Average Treatment Effect would be the treatment effect for the population (think of the EU funding example), so:</p>
-<p><span class="math display">\[ATE = \pi_{females}NATE + \pi_{males}NATE\]</span></p>
+<p><span class="math display">\[ATE = \pi_{females}NATEfem + \pi_{males}NATEmal\]</span></p>
 <p>For this example, our ATE would be: <span class="math display">\[ATE = 0.437(-0.0125)\, +\, 0.563(-0.0757) = -0.0481\]</span></p>
 <pre class="r"><code># NATE by gender
 nateMale &lt;- byGender %&gt;% 

@@ -107,7 +107,7 @@ $$Proportion\,of\,females = \frac{Female\,subjects}{Total\,subjects} = \frac{52}
 
 Our Average Treatment Effect would be the treatment effect for the population (think of the EU funding example), so:
 
-$$ATE = \pi_{females}NATE + \pi_{males}NATE$$
+$$ATE = \pi_{females}NATEfem + \pi_{males}NATEmal$$
 
 For this example, our ATE would be:
 $$ATE = 0.437(-0.0125)\, +\, 0.563(-0.0757) = -0.0481$$
