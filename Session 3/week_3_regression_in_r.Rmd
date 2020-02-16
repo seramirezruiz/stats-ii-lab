@@ -1,0 +1,106 @@
+---
+title: "Regression in R"
+output: html_document
+---
+
+### Disclaimer
+You may adapt the code for your assignments, but please use different examples! We won't be able to give you points for copies.
+
+```{r warning=FALSE, message=FALSE}
+library(dplyr) # data wrangling
+library(ggplot2) # plots
+library(ggdag) #dags
+library(ggpubr) #arranging plot output for html
+library(wooldridge) ##package with cigs data
+
+set.seed(123) # for consistent results
+```
+
+
+## Regression in R: Beauty, Talent, and Celebrity
+
+
+```{r }
+# beauty - 1000 observations with mean 5 and sd 1.5 (arbitrary scale)
+beauty <- rnorm(1000, 5, 1.5)
+
+# talent - 1000 observations with mean 3 and sd 1 (arbitrary scale)
+talent <- rnorm(1000, 3, 1)
+
+# celebrity - binary
+celebrity <-  ifelse(beauty + talent > 8, "celeb" ,"not_celeb") 
+
+dat <- data.frame(beauty, talent, celebrity, 
+                  stringsAsFactors = FALSE)
+```
+
+In this case, as our simulation suggest, we have a collider structure. We can see that celebrity can be a function of beauty or talent. Also, we can infer from the way we defined the variables that beauty are talent are d-separated (ie. the path between them is closed because celebrity is a collider). 
+
+```{r echo = FALSE}
+coor <- list(
+  x = c(Ce = 1, Be = 0, Ta = 2),
+  y = c(Ce = 0, Be = -2, Ta = -2)
+)
+
+dagify(Ce ~ Be,
+       Ce ~ Ta, coords = coor) %>% ggdag()
+```
+
+
+```{r echo = FALSE}
+cp <- ggplot(dat, aes(x = beauty, y = talent)) +
+  geom_point() +
+  xlab("Beauty") + 
+  ylab("Talent") +
+  geom_smooth(method = "lm", se = FALSE)
+
+# add celebrity as a color aesthetic:
+cp2 <- ggplot(dat, aes(x = beauty, y = talent,
+                       col = celebrity)) +
+  geom_point() +
+  xlab("Beauty") + 
+  ylab("Talent") +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme(legend.position = "none")
+```
+
+```{r echo = FALSE}
+ggpubr::ggarrange(cp,cp2)
+```
+
+Say you are interested in researching the relationship between **beauty** and **talent** for your Master's thesis, while doing your literature review you encounter a series of papera that find a negative relationship between the two and state that more beautiful people tend to be less talented. The model that these teams of the researchers used was the following:
+
+$$Y_{Talent} = \beta_1Beauty + \beta_2Celebrity$$
+
+```{r}
+summary(false_model <- lm(talent ~ beauty + celebrity, data = dat))
+
+```
+
+Your scientific hunch makes you believe that celebrity is a collider and that by controlling for it in their models, the researchers are inducing **collider bias**, or **endogenous bias**. You decide to move forward with your thesis by laying out a criticism to previous work on the field, given that you consider the formalization of their models is erroneous. You utilize the same data previous papers used, but based on your logic, you do not control for celebrity status. This is what you find:
+
+```{r}
+summary(right_model <- lm(talent ~ beauty, data = dat))
+
+```
+You realize that previous research had been inducing non-existent "effects" by controlling for celebrity status. You move forward and publish your paper with the null results.
+
+## Regression in R: Cigarette consumption and birth weight
+
+Consider the bwght dataset from the `wooldridge` package. The dataset contains data on smoking behavior and infant birth weight. You are interested in knowing the effect of smoking during pregnancy on the birth weight of babies. 
+
+You look at previous research on birth weight and formalize the following model:
+
+$$Birth\,weight = \beta_0 + \beta_1Cigs + \beta_2MaleBaby + u$$
+```{r}
+data_bwght <- bwght #R will recognize bwght if the package wooldridge has been required
+summary(mod <- lm(bwght ~ cigs + male, data = data_bwght))
+```
+
+Based on the results of your model:
+
+a) What is the estimated change in birth weight for 10 more cigarettes smoked per day while pregnant, holding the gender of the baby constant? 
+
+b) What is the estimated birth weight for a baby girl with a mother that smoked 5 cigarettes per day while pregnant?
+
+c) Under this model specifications, what percentage of the variation in birth weight is explained by gender of baby and cigarette consumption?
