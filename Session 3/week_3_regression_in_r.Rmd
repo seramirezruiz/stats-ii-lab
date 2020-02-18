@@ -70,17 +70,24 @@ ggpubr::ggarrange(cp,cp2)
 
 Say you are interested in researching the relationship between **beauty** and **talent** for your Master's thesis, while doing your literature review you encounter a series of papera that find a negative relationship between the two and state that more beautiful people tend to be less talented. The model that these teams of the researchers used was the following:
 
-$$Y_{Talent} = \beta_1Beauty + \beta_2Celebrity$$
+$$Y_{Talent} = \beta_0 + \beta_1Beauty + \beta_2Celebrity$$
 
 ```{r}
-summary(false_model <- lm(talent ~ beauty + celebrity, data = dat))
+false_model <- lm(talent ~ beauty + celebrity, data = dat)
+summary(false_model)
 
+#or in one line
+#summary(false_model <- lm(talent ~ beauty + celebrity, data = dat))
 ```
 
 Your scientific hunch makes you believe that celebrity is a collider and that by controlling for it in their models, the researchers are inducing **collider bias**, or **endogenous bias**. You decide to move forward with your thesis by laying out a criticism to previous work on the field, given that you consider the formalization of their models is erroneous. You utilize the same data previous papers used, but based on your logic, you do not control for celebrity status. This is what you find:
 
 ```{r}
-summary(right_model <- lm(talent ~ beauty, data = dat))
+right_model <- lm(talent ~ beauty, data = dat)
+summary(right_model)
+
+#or in one line
+#summary(right_model <- lm(talent ~ beauty, data = dat))
 
 ```
 You realize that previous research had been inducing non-existent "effects" by controlling for celebrity status. You move forward and publish your paper with the null results.

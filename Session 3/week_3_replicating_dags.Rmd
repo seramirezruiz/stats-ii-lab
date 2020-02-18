@@ -55,7 +55,7 @@ dagify(x ~ y,
 #### How to replicate DAGs
 
 For this week's assignment you will be tasked to render a DAG with `ggdag`. For this task, you may want to explore how to convey coordinates. Here in the lab we will see how to replicate this DAG:<br>
-<center>![](dag_replication.png)</center>
+<center>![](dags/dag_replication.png)</center>
 
 **The first step is to define the relationships between the variables**.
 
