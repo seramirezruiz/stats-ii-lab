@@ -1,0 +1,192 @@
+---
+title: "Matching and Logistic Regression"
+output: html_document
+---
+## The Effect of Catholic School on Student Achievement
+
+Example inspired by Simon Ejdemyr: https://sejdemyr.github.io/r-tutorials/statistics/tutorial8.html
+
+#### Reference links:
+1. MatchIt: https://cran.r-project.org/web/packages/MatchIt/vignettes/matchit.pdf
+2. Cobalt (for matching plots and extra features): https://cran.r-project.org/web/packages/cobalt/vignettes/cobalt_A0_basic_use.html
+3. kableExtra (for formatting data frames): https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html
+4. Stargazer (for formatting model outputs): https://www.jakeruss.com/cheatsheets/stargazer/
+
+```{r warning=FALSE, message=FALSE}
+library(dplyr) # for data wrangling
+library(ggplot2) # for creating plots
+library(stargazer) # for formatting model output
+library(kableExtra) # for formatting data frames
+library(MatchIt) # for matching
+
+set.seed(123) # for consistent results
+```
+
+### Data Prep and EDA
+
+First, let's read in the data. Then we will compare the students *pre-matching* on their standardized math scores (c5r2mtsc_std).
+
+```{r warning=FALSE, message=FALSE}
+ecls <- read.csv("data/ecls.csv")
+
+ecls %>%
+  group_by(catholic) %>%
+  summarise(n_students = n(),
+            mean_math = mean(c5r2mtsc_std),
+            std_error = sd(c5r2mtsc_std) / sqrt(n_students)) %>% 
+  round(3) %>% # round the results
+  kable() %>% # create kable table
+  kable_styling() # view kable table
+```
+
+We can see that we have many more students that did not attend Catholic school than those who did, and the Catholic school students have a math score that is 0.194 points higher. 
+
+### Balance Table
+
+Now, let's create a balance table to identify the relevant co-variates in the unmatched dataset.
+
+```{r warning=FALSE, message=FALSE}
+ecls %>%
+  group_by(catholic) %>%
+  summarise_all(funs(mean(., na.rm = T))) %>% # summarize the mean of every variable
+  t() %>% # transpose data
+  round(3) %>% # round
+  kable() %>% # create kable table
+  kable_styling() # view kable table
+```
+
+### NATE
+
+We can calculate the NATE of Catholic school on student achievement (without adjusting for any covariates) using a t-test to compare the means of the two groups.
+
+```{r}
+# simple way to view results
+t.test(ecls$c5r2mtsc_std ~ ecls$catholic)
+```
+
+### Exact Matching
+
+Now, let's select some covariates for conducting an exact matching. We will go with:
+
+- race_white: Is the student white (1) or not (0)?
+- p5hmage: Mother’s age
+- w3income: Family income
+- p5numpla: Number of places the student has lived for at least 4 months
+- w3momed_hsb: Is the mother’s education level high-school or below (1) or some college or more (0)?
+
+```{r}
+# first we must omit missing values (MatchIt does not allow missings)
+match_data <- ecls %>% 
+  select(catholic, c5r2mtsc_std, race_white, p5hmage, 
+         w3income, p5numpla, w3momed_hsb) %>% 
+  na.omit()
+
+# perform exact match
+exact_match <- matchit(catholic ~ race_white + p5hmage + w3income +
+                         p5numpla + w3momed_hsb, 
+                       method = "exact", 
+                       data = match_data)
+
+# estimate t-test again
+data_exact_match <- match.data(exact_match)
+t.test(data_exact_match$c5r2mtsc_std ~ data_exact_match$catholic)
+```
+
+Now we can see that the mean in the group that did not attend Catholic school is actually about 0.10 higher than the mean for those who did. The results are statistically significant given that the confidence interval does not contain zero, and we have a lot p-value.
+
+### Propensity Scores
+
+If we want to perform non-exact matching, we need to estimate propensity scores. We can do this using logistic regression on the unmatched data set.
+
+```{r, results = 'asis'}
+# create a new column with income by the thousands for more interpretable output
+ecls <- ecls %>% mutate(w3income_1k = w3income / 1000) 
+
+# estimate logit model
+m_ps <- glm(catholic ~ race_white + w3income_1k + 
+              p5hmage + p5numpla + w3momed_hsb,
+            family = binomial(), data = ecls)
+
+# use the stargazer package to view the output
+# NOTE: you MUST include results = "asis" in the chunk header for this to be visible once knitted
+stargazer(m_ps, type = "html")
+
+# extract predicted probabilities
+prs_df <- data.frame(pr_score = predict(m_ps, type = "response"),
+                     catholic = m_ps$model$catholic)
+```
+
+Let's plot the propensity scores by treatment group to explore common support:
+
+```{r warning=FALSE, message=FALSE}
+labs <- paste("Actual school type attended:", c("Catholic", "Public"))
+
+prs_df %>%
+  mutate(catholic = ifelse(catholic == 1, labs[1], labs[2])) %>%
+  ggplot(aes(x = pr_score)) +
+  geom_histogram(color = "white") +
+  facet_wrap(~catholic) +
+  xlab("Probability of going to Catholic school")
+```
+
+### Non-Exact Matching
+
+We can now estimate one-to-one matching using the propensity scores.
+
+```{r}
+one_match <- matchit(catholic ~ race_white + w3income + p5hmage +
+                       p5numpla + w3momed_hsb,
+                     method = "nearest", 
+                     data = match_data)
+
+summary(one_match)
+```
+
+We can interpret the resulting output as follows:
+- Summary of balance for all data: Comparison of the means for all the data without matching
+- Summary of balance for matched data: Comparison of means for matched data. Looking for them to become similar.
+- Percent balance improvement: Higher is better, close to 100 is ideal.
+- Sample sizes: How many units were matched in the control/treatment groups. 
+
+Now, let's plot the densities of the propensity scores for the treated and untreated units. 
+
+```{r}
+# simple plot - check out the cobalt package for fancier options.
+plot(one_match, type = "hist")
+```
+
+And take a look at the new balance table:
+
+```{r}
+# grab data set
+data_prop_match <- match.data(one_match)
+
+# Check balance
+data_prop_match %>%
+  group_by(catholic) %>%
+  summarise_all(funs(mean)) %>% 
+  round(3) %>% 
+  kable() %>% 
+  kable_styling()
+```
+
+Those means look very close. Hooray.
+
+Finally, let's estimate the treatment effect on the matched data set:
+
+```{r}
+t.test(data_prop_match$c5r2mtsc_std ~ data_prop_match$catholic)
+```
+
+As with the exact matching, we can see that those that did not attend Catholic school performed better on the test than those who did, and the results are statistically significant.
+
+We can see the direction and magnitude of the covariate effects using a simple linear model:
+```{r, results = 'asis'}
+lm_matched <- lm(c5r2mtsc_std ~ catholic + race_white + p5hmage +
+                  I(w3income / 1000) + p5numpla + w3momed_hsb, 
+                 data = data_prop_match)
+
+# use the stargazer package to view the output
+# NOTE: you MUST include results = "asis" in the chunk header for this to be visible once knitted
+stargazer(lm_matched, type = "html")
+```
