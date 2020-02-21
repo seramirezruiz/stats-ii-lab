@@ -21,11 +21,11 @@ set.seed(123) # for consistent results
 
 
 ```{r }
-# beauty - 1000 observations with mean 5 and sd 1.5 (arbitrary scale)
-beauty <- rnorm(1000, 5, 1.5)
+# beauty - 1000 observations with mean 5 and sd 2.5 (arbitrary scale)
+beauty <- rnorm(1000, 5, 0.1)
 
-# talent - 1000 observations with mean 3 and sd 1 (arbitrary scale)
-talent <- rnorm(1000, 3, 1)
+# talent - 1000 observations with mean 3 and sd 0.5 (arbitrary scale)
+talent <- rnorm(1000, 3, 0.3)
 
 # celebrity - binary
 celebrity <-  ifelse(beauty + talent > 8, "celeb" ,"not_celeb") 
