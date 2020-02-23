@@ -192,6 +192,7 @@ summary {
 <li>Cobalt (for matching plots and extra features): <a href="https://cran.r-project.org/web/packages/cobalt/vignettes/cobalt_A0_basic_use.html" class="uri">https://cran.r-project.org/web/packages/cobalt/vignettes/cobalt_A0_basic_use.html</a></li>
 <li>kableExtra (for formatting data frames): <a href="https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html" class="uri">https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html</a></li>
 <li>Stargazer (for formatting model outputs): <a href="https://www.jakeruss.com/cheatsheets/stargazer/" class="uri">https://www.jakeruss.com/cheatsheets/stargazer/</a></li>
+<li>Video overview of matching concepts: <a href="https://fr.coursera.org/lecture/crash-course-in-causality/overview-of-matching-JQfPC" class="uri">https://fr.coursera.org/lecture/crash-course-in-causality/overview-of-matching-JQfPC</a></li>
 </ol>
 <pre class="r"><code>library(dplyr) # for data wrangling
 library(ggplot2) # for creating plots
@@ -203,8 +204,12 @@ set.seed(123) # for consistent results</code></pre>
 </div>
 <div id="data-prep-and-eda" class="section level3">
 <h3>Data Prep and EDA</h3>
-<p>First, let’s read in the data. Then we will compare the students <em>pre-matching</em> on their standardized math scores (c5r2mtsc_std).</p>
+<p>First, let’s read in the data. We will remove a few variables that won’t be useful for our analysis. Then, we will compare the students <em>pre-matching</em> on their standardized math scores (c5r2mtsc_std).</p>
 <pre class="r"><code>ecls &lt;- read.csv(&quot;data/ecls.csv&quot;)
+
+ecls &lt;- ecls %&gt;% 
+  select(-childid, -race, -w3daded,
+         -w3momed, -w3inccat)
 
 ecls %&gt;%
   group_by(catholic) %&gt;%
@@ -289,28 +294,6 @@ catholic
 </tr>
 <tr>
 <td style="text-align:left;">
-childid
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-race
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
 race_white
 </td>
 <td style="text-align:right;">
@@ -388,28 +371,6 @@ p5hdage
 </tr>
 <tr>
 <td style="text-align:left;">
-w3daded
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-w3momed
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
 w3daded_hsb
 </td>
 <td style="text-align:right;">
@@ -450,17 +411,6 @@ w3dadscr
 </td>
 <td style="text-align:right;">
 46.356
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-w3inccat
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
 </td>
 </tr>
 <tr>

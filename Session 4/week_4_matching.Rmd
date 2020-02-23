@@ -11,6 +11,7 @@ Example inspired by Simon Ejdemyr: https://sejdemyr.github.io/r-tutorials/statis
 2. Cobalt (for matching plots and extra features): https://cran.r-project.org/web/packages/cobalt/vignettes/cobalt_A0_basic_use.html
 3. kableExtra (for formatting data frames): https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html
 4. Stargazer (for formatting model outputs): https://www.jakeruss.com/cheatsheets/stargazer/
+5. Video overview of matching concepts: https://fr.coursera.org/lecture/crash-course-in-causality/overview-of-matching-JQfPC
 
 ```{r warning=FALSE, message=FALSE}
 library(dplyr) # for data wrangling
@@ -24,10 +25,14 @@ set.seed(123) # for consistent results
 
 ### Data Prep and EDA
 
-First, let's read in the data. Then we will compare the students *pre-matching* on their standardized math scores (c5r2mtsc_std).
+First, let's read in the data. We will remove a few variables that won't be useful for our analysis. Then, we will compare the students *pre-matching* on their standardized math scores (c5r2mtsc_std).
 
 ```{r warning=FALSE, message=FALSE}
 ecls <- read.csv("data/ecls.csv")
+
+ecls <- ecls %>% 
+  select(-childid, -race, -w3daded,
+         -w3momed, -w3inccat)
 
 ecls %>%
   group_by(catholic) %>%
