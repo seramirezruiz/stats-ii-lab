@@ -8,7 +8,7 @@ Example inspired by Simon Ejdemyr: https://sejdemyr.github.io/r-tutorials/statis
 
 #### Reference links:
 1. MatchIt: https://cran.r-project.org/web/packages/MatchIt/vignettes/matchit.pdf
-2. Cobalt (for matching plots and extra features): https://cran.r-project.org/web/packages/cobalt/vignettes/cobalt_A0_basic_use.html
+2. Cobalt (optional library for matching plots and extra features): https://cran.r-project.org/web/packages/cobalt/vignettes/cobalt_A0_basic_use.html
 3. kableExtra (for formatting data frames): https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html
 4. Stargazer (for formatting model outputs): https://www.jakeruss.com/cheatsheets/stargazer/
 5. Video overview of matching concepts: https://fr.coursera.org/lecture/crash-course-in-causality/overview-of-matching-JQfPC
@@ -46,6 +46,14 @@ ecls %>%
 
 We can see that we have many more students that did not attend Catholic school than those who did, and the Catholic school students have a math score that is 0.194 points higher. 
 
+### NATE
+
+First, let's calculate the NATE of Catholic school on student achievement (without adjusting for any covariates) using a t-test to compare the means of the two groups.
+
+```{r}
+t.test(ecls$c5r2mtsc_std ~ ecls$catholic)
+```
+
 ### Balance Table
 
 Now, let's create a balance table to identify the relevant co-variates in the unmatched dataset.
@@ -55,23 +63,27 @@ ecls %>%
   group_by(catholic) %>%
   summarise_all(funs(mean(., na.rm = T))) %>% # summarize the mean of every variable
   t() %>% # transpose data
-  round(3) %>% # round
+  as.data.frame() %>% # after transposing, convert from matrix to df
+  add_rownames("variable") %>% # rownames to explicit column
+  rename(no_catholic = V1, catholic = V2) %>% # rename columns that are created by as.data.frame
+  mutate(difference = catholic - no_catholic,
+         differencePerc = difference / (catholic + no_catholic)) %>% # create new columns for difference between groups
+  mutate_if(is.numeric, round, 3) %>% # round
   kable() %>% # create kable table
   kable_styling() # view kable table
 ```
 
-### NATE
+We can see that the largest magnitude differences are for:
 
-We can calculate the NATE of Catholic school on student achievement (without adjusting for any covariates) using a t-test to compare the means of the two groups.
-
-```{r}
-# simple way to view results
-t.test(ecls$c5r2mtsc_std ~ ecls$catholic)
-```
+- variables on race
+- w3momed_hsb: dummy variable with 1 = mother's education level is high school or below, 0 = some college or above
+- w3income: family income
+- w3povrty: poverty score dummy
+- p5fstamp: food stamp dummy
 
 ### Exact Matching
 
-Now, let's select some covariates for conducting an exact matching. We will go with:
+We can use a combination of the results above and theory to identify which variables to use for matching. Let's perform an exact match with:
 
 - race_white: Is the student white (1) or not (0)?
 - p5hmage: Mother’s age
@@ -110,67 +122,75 @@ ecls <- ecls %>% mutate(w3income_1k = w3income / 1000)
 # estimate logit model
 m_ps <- glm(catholic ~ race_white + w3income_1k + 
               p5hmage + p5numpla + w3momed_hsb,
-            family = binomial(), data = ecls)
+            family = binomial(), 
+            data = ecls)
 
 # use the stargazer package to view the output
 # NOTE: you MUST include results = "asis" in the chunk header for this to be visible once knitted
 stargazer(m_ps, type = "html")
 
 # extract predicted probabilities
+# type="response" option tells R to output probabilities of the form P(Y = 1|X)
 prs_df <- data.frame(pr_score = predict(m_ps, type = "response"),
-                     catholic = m_ps$model$catholic)
+                     catholic = m_ps$model$catholic) # the actual values
 ```
 
 Let's plot the propensity scores by treatment group to explore common support:
 
 ```{r warning=FALSE, message=FALSE}
-labs <- paste("Actual school type attended:", c("Catholic", "Public"))
-
 prs_df %>%
-  mutate(catholic = ifelse(catholic == 1, labs[1], labs[2])) %>%
-  ggplot(aes(x = pr_score)) +
-  geom_histogram(color = "white") +
-  facet_wrap(~catholic) +
-  xlab("Probability of going to Catholic school")
+  ggplot(aes(x = pr_score, fill = factor(catholic))) +
+  geom_density(alpha = 0.5) +
+  labs(x = "Propensity Score Distribution: Treatment and Control Groups",
+       fill = "Catholic School Attendance")
 ```
 
 ### Non-Exact Matching
 
-We can now estimate one-to-one matching using the propensity scores.
+We can now estimate one-to-one nearest neighbor matching using the propensity scores.
 
 ```{r}
 one_match <- matchit(catholic ~ race_white + w3income + p5hmage +
                        p5numpla + w3momed_hsb,
                      method = "nearest", 
+                     ratio = 1, 
+                     replace = TRUE,
                      data = match_data)
 
 summary(one_match)
 ```
 
 We can interpret the resulting output as follows:
+
 - Summary of balance for all data: Comparison of the means for all the data without matching
 - Summary of balance for matched data: Comparison of means for matched data. Looking for them to become similar.
 - Percent balance improvement: Higher is better, close to 100 is ideal.
 - Sample sizes: How many units were matched in the control/treatment groups. 
 
-Now, let's plot the densities of the propensity scores for the treated and untreated units. 
+Now, let's plot the propensity scores for the treated and untreated units. 
 
 ```{r}
-# simple plot - check out the cobalt package for fancier options.
+# simple plot - check out the cobalt package for fancier options, or use ggplot2 to create your own!
 plot(one_match, type = "hist")
 ```
 
 And take a look at the new balance table:
 
-```{r}
+```{r warning=FALSE, message=FALSE}
 # grab data set
 data_prop_match <- match.data(one_match)
 
-# Check balance
+# check balance
 data_prop_match %>%
   group_by(catholic) %>%
-  summarise_all(funs(mean)) %>% 
-  round(3) %>% 
+  summarise_all(funs(mean)) %>%
+  t() %>% 
+  as.data.frame() %>% 
+  add_rownames("variable") %>% 
+  rename(no_catholic = V1, catholic = V2) %>% 
+  mutate(difference = catholic - no_catholic,
+         differencePerc = difference / (catholic + no_catholic)) %>% 
+  mutate_if(is.numeric, round, 3) %>% 
   kable() %>% 
   kable_styling()
 ```
