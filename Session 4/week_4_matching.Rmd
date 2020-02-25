@@ -140,7 +140,7 @@ Now we can see that the mean in the group that did not attend Catholic school is
 
 ### Propensity Scores
 
-If we want to perform non-exact matching, we need to estimate propensity scores. We can do this using logistic regression on the unmatched data set.
+If we want to perform non-exact matching, we need propensity scores. We can generate these manually using logistic regression on the unmatched data set.
 
 ```{r, results = 'asis'}
 # create a new column with income by the thousands for more interpretable output
@@ -175,7 +175,14 @@ prs_df %>%
 
 ### Non-Exact Matching
 
-We can now estimate one-to-one nearest neighbor matching with replacement using the propensity scores. Try it yourself! All the info you need to complete this is available in the Exploring Matching section. Scroll down for the solution when you're ready ;-)
+MatchIt can generate propensity scores itself, so we don't need to manually go through the process above. Let's try putting together a non-exact matching formula yourself! Try:
+
+- nearest neighbor matching
+- with replacement
+- with a one-to-one ratio
+- on the *match_data* dataset
+
+All the info you need to complete this is available in the Exploring Matching section. Scroll down for the solution when you're ready ;-)
 <div style="margin-bottom:500px;">
 </div>
 ```{r}
@@ -203,7 +210,7 @@ Now, let's plot the propensity scores for the treated and untreated units.
 plot(one_match, type = "hist")
 ```
 
-Try creating a balance table like the one we did before, just this time using the new data from our *one_match* matching. Scroll down for the answer when you're ready.
+Try extracting the data from *one_match* and creating a balance table like the one we did before, just this time using the new data. Scroll down for the answer when you're ready.
 <div style="margin-bottom:500px;">
 </div>
 ```{r warning=FALSE, message=FALSE}
