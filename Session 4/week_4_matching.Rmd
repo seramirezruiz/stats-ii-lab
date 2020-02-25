@@ -136,7 +136,7 @@ data_exact_match <- match.data(exact_match)
 t.test(data_exact_match$c5r2mtsc_std ~ data_exact_match$catholic)
 ```
 
-Now we can see that the mean in the group that did not attend Catholic school is actually about 0.10 higher than the mean for those who did. The results are statistically significant given that the confidence interval does not contain zero, and we have a lot p-value.
+Now we can see that the mean in the group that did not attend Catholic school is actually about 0.10 higher than the mean for those who did. The results are statistically significant given that the confidence interval does not contain zero, and we have a fairly small p-value.
 
 ### Propensity Scores
 
