@@ -44,7 +44,7 @@ ecls %>%
   kable_styling() # view kable table
 ```
 
-We can see that we have many more students that did not attend Catholic school than those who did, and the Catholic school students have a math score that is 0.194 points higher. 
+We can see that we have many more students that did not attend Catholic school than those who did, and the Catholic school students have a mean math score that is higher. 
 
 ### NATE
 
@@ -68,7 +68,7 @@ ecls %>%
   rename(no_catholic = V1, catholic = V2) %>% # rename columns that are created by as.data.frame
   mutate(difference = catholic - no_catholic,
          differencePerc = difference / (catholic + no_catholic)) %>% # create new columns for difference between groups
-  mutate_if(is.numeric, round, 3) %>% # round
+  mutate_if(is.numeric, round, 3) %>% # round numeric columns
   kable() %>% # create kable table
   kable_styling() # view kable table
 ```
@@ -81,9 +81,34 @@ We can see that the largest magnitude differences are for:
 - w3povrty: poverty score dummy
 - p5fstamp: food stamp dummy
 
+
+### Exploring MatchIt
+
+MatchIt is designed for causal inference with a dichotomous treatment variable and a set of pretreatment control variables. Any number or type of dependent variables can be used. 
+
+The basic syntax is as follows: <br>
+*matched <- matchit(treat ~ x1 + x2, data = mydata)*
+
+MatchIt is capable of using several matching methods:
+
+- Exact (*method = "exact"*): The simplest version of matching is exact. This technique matches each treated unit to all possible control units with exactly the same values on all the covariates, forming subclasses such that within each subclass all units (treatment and control) have the same covariate values. 
+- Subclassification (*method = "subclass"*): When there are many covariates (or some covariates can take a large number of values),
+finding sufficient exact matches will often be impossible. The goal of subclassification is to form subclasses, such that in each the distribution (rather than the exact values) of covariates for the treated and control groups are as similar as possible.
+- Nearest Neighbor (*method = "nearest"*): Nearest neighbor matching selects the best control matches for each individual
+in the treatment group. Matching is done using a distance measure (propensity score) specified by the distance option (default = logit).
+- As well as optimal matching, full matching, genetic matching, and coarsened exact matching, all of which are detailed in the documentation.
+
+A few additional arguments are important to know about:
+
+- *distance*: this refers to propensity scores. There are many options for how to calculate these within MatchIt.
+- *discard*: specifies whether to discard units that fall outside some measure of support of the distance measure (default is "none", discard no units). For example, if some treated units have extremely high propensity scores that are higher than any control units, we could drop those.
+- *replace*: logical value indicating whether each control unit can be matched to more than one treated unit (default is *replace = FALSE*, each control unit is used at most once).
+- *ratio*: the number of control units to match to each treated unit (default = 1).
+- There are also some optional arguments for most of the matching methods, which you can read about in the documentation if you are interested.
+
 ### Exact Matching
 
-We can use a combination of the results above and theory to identify which variables to use for matching. Let's perform an exact match with:
+We can use a combination of the results from our balance table and theory to identify which variables to use for matching. Let's perform an exact match with:
 
 - race_white: Is the student white (1) or not (0)?
 - p5hmage: Mother’s age
@@ -104,8 +129,10 @@ exact_match <- matchit(catholic ~ race_white + p5hmage + w3income +
                        method = "exact", 
                        data = match_data)
 
-# estimate t-test again
+# grab the matched data
 data_exact_match <- match.data(exact_match)
+
+# estimate t-test again
 t.test(data_exact_match$c5r2mtsc_std ~ data_exact_match$catholic)
 ```
 
@@ -117,7 +144,8 @@ If we want to perform non-exact matching, we need to estimate propensity scores.
 
 ```{r, results = 'asis'}
 # create a new column with income by the thousands for more interpretable output
-ecls <- ecls %>% mutate(w3income_1k = w3income / 1000) 
+ecls <- ecls %>% 
+  mutate(w3income_1k = w3income / 1000) 
 
 # estimate logit model
 m_ps <- glm(catholic ~ race_white + w3income_1k + 
@@ -130,7 +158,7 @@ m_ps <- glm(catholic ~ race_white + w3income_1k +
 stargazer(m_ps, type = "html")
 
 # extract predicted probabilities
-# type="response" option tells R to output probabilities of the form P(Y = 1|X)
+# type = "response" option tells R to output probabilities of the form P(Y = 1|X)
 prs_df <- data.frame(pr_score = predict(m_ps, type = "response"),
                      catholic = m_ps$model$catholic) # the actual values
 ```
@@ -147,8 +175,9 @@ prs_df %>%
 
 ### Non-Exact Matching
 
-We can now estimate one-to-one nearest neighbor matching using the propensity scores.
-
+We can now estimate one-to-one nearest neighbor matching with replacement using the propensity scores. Try it yourself! All the info you need to complete this is available in the Exploring Matching section. Scroll down for the solution when you're ready ;-)
+<div style="margin-bottom:500px;">
+</div>
 ```{r}
 one_match <- matchit(catholic ~ race_white + w3income + p5hmage +
                        p5numpla + w3momed_hsb,
@@ -174,8 +203,9 @@ Now, let's plot the propensity scores for the treated and untreated units.
 plot(one_match, type = "hist")
 ```
 
-And take a look at the new balance table:
-
+Try creating a balance table like the one we did before, just this time using the new data from our *one_match* matching. Scroll down for the answer when you're ready.
+<div style="margin-bottom:500px;">
+</div>
 ```{r warning=FALSE, message=FALSE}
 # grab data set
 data_prop_match <- match.data(one_match)
@@ -197,8 +227,9 @@ data_prop_match %>%
 
 Those means look very close. Hooray.
 
-Finally, let's estimate the treatment effect on the matched data set:
-
+Finally, estimate the treatment effect on the matched data set:
+<div style="margin-bottom:500px;">
+</div>
 ```{r}
 t.test(data_prop_match$c5r2mtsc_std ~ data_prop_match$catholic)
 ```
@@ -206,6 +237,7 @@ t.test(data_prop_match$c5r2mtsc_std ~ data_prop_match$catholic)
 As with the exact matching, we can see that those that did not attend Catholic school performed better on the test than those who did, and the results are statistically significant.
 
 We can see the direction and magnitude of the covariate effects using a simple linear model:
+
 ```{r, results = 'asis'}
 lm_matched <- lm(c5r2mtsc_std ~ catholic + race_white + p5hmage +
                   I(w3income / 1000) + p5numpla + w3momed_hsb, 
