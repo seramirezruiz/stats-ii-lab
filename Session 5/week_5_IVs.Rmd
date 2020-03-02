@@ -4,7 +4,7 @@ output: html_document
 ---
 ## Measuring the effect of mosquito net use on malaria infection
 
-Imagine that the organization you work for is laying out a project to distribute mosquito nets to help combat malaria transmitions. You are in charge to run the impact evaluation of this program. You realize that it is unethical to randomize who receives the nets, so you consider an encouragement design. You decide to select five villages to send SMS reminders every night encouraging them to use the mosquito nets. (This example is using simulated data)
+Imagine that the organization you work for is laying out a project to distribute mosquito nets to help combat malaria transmitions. You are in charge of running the impact evaluation of this program. You realize that it is unethical to randomize who receives the nets, so you consider an encouragement design. You decide to select five villages to send SMS reminders every night encouraging them to use the mosquito nets. (This example is using simulated data)
 
 ![](./data/dag_program.png)
 
@@ -51,7 +51,7 @@ c) How many people were not encouraged via SMS, yet they utilized the net?
 <br>
 <br>
 
-Additionally, we can explore visually our data to check beyond compliance and see in which groups malaria was present. In this case, we are dealing with binary outcomes. That is you can either be or not be infected, which are represented by the color dimension in different groups.
+Additionally, we can explore our data visually to check beyond compliance and see in which groups malaria was present. In this case, we are dealing with binary outcomes. That is, you can either be or not be infected, which are represented by the color dimension in different groups.
 
 
 ```{r echo = FALSE, fig.align="center"}
@@ -155,5 +155,5 @@ summary(lm(x~z))
 ```
 
 
-**For the third task you will have to adapt the simulation code provided in the lecture to create a flawed/invalid instrument because it is connected to the outcome through another variable other than the treatment**
+**For the third task you will have to adapt the simulation code provided in the lecture to create a flawed/invalid instrument (which is flawed because it is connected to the outcome through another variable other than the treatment).**
 
