@@ -40,7 +40,7 @@ You receive the results of your intervention from the M&E officers. This is what
 ```{r results ='asis'}
 st_options(footnote = NA) # to get rid of the footnote of ctable
 print(ctable(eval_data$net_use, eval_data$sms, prop = "n"), 
-      method = "render")
+      method = "render") # include results = "asis" to view html in the knitted file
 ```
 
 <center>**LET'S EXPLORE COMPLIANCE TYPES FROM THIS TABLE TOGETHER**</center><br>
@@ -107,7 +107,7 @@ We have several options for this:
 >$E(D ∣ Z = 0)$ = 165 / (165 + 335) = 0.33 <br>
 >$LATE$ = (0.18 - 0.504) / (0.78 - 0.33) = -0.72 <br>
 
-You can also do this with the sample code that Professors Munzert and Stoetzer utilized in their sessions. 
+You can also do this with the sample code that Professors Munzert and Stoetzer utilized in their sessions, which is similar to the above except using the covariance function. 
 
 - Two-stage Least Squares (2SLS). We will learn how to do this with ivreg(), which is part of the `AER` package. It fits instrumental-variable regression through two-stage least squares. The syntax is the following:
 

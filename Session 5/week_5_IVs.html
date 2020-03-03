@@ -208,7 +208,7 @@ eval_data &lt;- read.csv(&quot;./data/evaluation_data.csv&quot;) # loading simul
 <p>You receive the results of your intervention from the M&amp;E officers. This is what they look like:</p>
 <pre class="r"><code>st_options(footnote = NA) # to get rid of the footnote of ctable
 print(ctable(eval_data$net_use, eval_data$sms, prop = &quot;n&quot;), 
-      method = &quot;render&quot;)</code></pre>
+      method = &quot;render&quot;) # include results = &quot;asis&quot; to view html in the knitted file</code></pre>
 <div class="container st-container">
 <h3>Cross-Tabulation</h3>
 <h4>net_use * sms</h4>
@@ -388,7 +388,7 @@ summary(itt_model)</code></pre>
 <blockquote>
 <p><span class="math inline">\(E(Y | Z = 0)\)</span> = 0.504 <br> <span class="math inline">\(E(Y | Z = 1)\)</span> = 0.18 <br> <span class="math inline">\(E(D ∣ Z = 1)\)</span> = 390 / (390 + 110) = 0.78 <br> <span class="math inline">\(E(D ∣ Z = 0)\)</span> = 165 / (165 + 335) = 0.33 <br> <span class="math inline">\(LATE\)</span> = (0.18 - 0.504) / (0.78 - 0.33) = -0.72 <br></p>
 </blockquote>
-<p>You can also do this with the sample code that Professors Munzert and Stoetzer utilized in their sessions.</p>
+<p>You can also do this with the sample code that Professors Munzert and Stoetzer utilized in their sessions, which is similar to the above except using the covariance function.</p>
 <ul>
 <li>Two-stage Least Squares (2SLS). We will learn how to do this with ivreg(), which is part of the <code>AER</code> package. It fits instrumental-variable regression through two-stage least squares. The syntax is the following:</li>
 </ul>
