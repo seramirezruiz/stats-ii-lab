@@ -29,7 +29,7 @@ library(AER) # for ivreg()
 
 set.seed(123) # for consistent results
 
-eval_data <- read.csv("./data/evaluation_data.csv") #loading simulated data frame of the intervention
+eval_data <- read.csv("./data/evaluation_data.csv") # loading simulated data frame of the intervention
 
 ```
 
@@ -37,9 +37,10 @@ eval_data <- read.csv("./data/evaluation_data.csv") #loading simulated data fram
 ### Exploring our results
 You receive the results of your intervention from the M&E officers. This is what they look like:
 
-```{r results ='asis', echo = FALSE}
-st_options(footnote = NA) #to get rid of the footnote of ctable
-print(ctable(eval_data$net_use, eval_data$sms, prop = "n"), method = "render")
+```{r results ='asis'}
+st_options(footnote = NA) # to get rid of the footnote of ctable
+print(ctable(eval_data$net_use, eval_data$sms, prop = "n"), 
+      method = "render")
 ```
 
 <center>**LET'S EXPLORE COMPLIANCE TYPES FROM THIS TABLE TOGETHER**</center><br>
@@ -54,8 +55,10 @@ c) How many people were not encouraged via SMS, yet they utilized the net?
 Additionally, we can explore our data visually to check beyond compliance and see in which groups malaria was present. In this case, we are dealing with binary outcomes. That is, you can either be or not be infected, which are represented by the color dimension in different groups.
 
 
-```{r echo = FALSE, fig.align="center"}
-ggplot(eval_data, aes(x = factor(sms), y = factor(net_use), color = factor(malaria))) +
+```{r fig.align="center"}
+ggplot(eval_data, aes(x = factor(sms), 
+                      y = factor(net_use), 
+                      color = factor(malaria))) +
   geom_point() +
   geom_jitter() +
   theme_minimal() +
@@ -75,10 +78,10 @@ In other words, we are looking at the relevance assumption. Does our SMS encoura
 ```{r}
 summary(lm(net_use ~ sms, eval_data))
 ```
-Economists have established as a "rule-of-thumb" for the case of a single endogenous regressor to be considered a strong instrument should have a **F-statistic** greater than 10. From this regression, we can see that SMS encouragement is a strong instrument. Additionally, the substantive read in this case is that only 33% of those who did not receive the SMS utilized the mosquito nets, where as 78% of those who got the SMS encouragement did. 
+Economists have established as a "rule-of-thumb" for the case of a single endogenous regressor to be considered a strong instrument should have a **F-statistic** ^[An F statistic is a value you get when you run an ANOVA test or a regression analysis to find out if the means between two populations are significantly different. It’s similar to a T statistic from a T-Test; A-T test will tell you if a single variable is statistically significant and an F test will tell you if a group of variables are jointly significant.] greater than 10. From this regression, we can see that SMS encouragement is a strong instrument. Additionally, the substantive read in this case is that only 33% of those who did not receive the SMS utilized the mosquito nets, where as 78% of those who got the SMS encouragement did. 
 <p><p>
 **- Let's gather a naïve estimate of mosquito net use and malaria infection.** <p>
-Also why do you think we call this a naïve estimate?
+Also, why do you think we call this a naïve estimate?
 
 ```{r}
 naive_model <- lm(malaria ~ net_use, eval_data)
@@ -94,14 +97,25 @@ summary(itt_model)
 ```
 <p><p>
 **- Let's gather out local average treatment effect (LATE).**<p>
-For this we can calculate the wald estimator as we defined $LATE = \frac{con(Y_i,Z_i)}{cov(D_i,Z_i)}$. You can do this with the sample code that Professors Munzert and Stoetzer utilized in their sessions. You can also gather the LATE through two-stage least squares (2SLS). We will learn how to do this with ivreg()<p>
-ivreg() is part of the `AER` package. It fits instrumental-variable regression through two-stage least squares. The syntax is the following:
+We have several options for this:
 
-<center>ivreg(outcome ~ treatment | instrument)</center>
+- Wald Estimator $LATE = \frac{con(Y_i,Z_i)}{cov(D_i,Z_i)}$. We can calculate this by hand. Let's try that now, using the values from the table above. We can also calculate the average malaria rates among those who did and did not receive an SMS (no SMS = 0.504, yes SMS = 0.18).
+
+>$E(Y | Z = 0)$ = 0.504 <br>
+>$E(Y | Z = 1)$ = 0.18 <br>
+>$E(D ∣ Z = 1)$ = 390 / (390 + 110) = 0.78 <br>
+>$E(D ∣ Z = 0)$ = 165 / (165 + 335) = 0.33 <br>
+>$LATE$ = (0.18 - 0.504) / (0.78 - 0.33) = -0.72 <br>
+
+You can also do this with the sample code that Professors Munzert and Stoetzer utilized in their sessions. 
+
+- Two-stage Least Squares (2SLS). We will learn how to do this with ivreg(), which is part of the `AER` package. It fits instrumental-variable regression through two-stage least squares. The syntax is the following:
+
+<center>ivreg(outcome ~ treatment | instrument, data)</center>
  <p>
 
 ```{r}
-late_model <- ivreg(malaria ~ net_use | sms, data= eval_data)
+late_model <- ivreg(malaria ~ net_use | sms, data = eval_data)
 summary(late_model)
 ```
 <p><center>What is the substantive reading of these results?</center> 
@@ -134,7 +148,6 @@ x <- xStar + z
 
 # generate the response variable y
 y <- 1 + x + c + rnorm(1000, 0, 0.5)
-
 ```
 <br>
 **Can we draw a DAG based on this simulation?**<p>
@@ -144,14 +157,14 @@ We have a portion of our $X$, that is $X*$, which has a common variance with $C$
 Let's see if we have a strong or weak instrument:
 
 ```{r}
-summary(lm(x~z))
+summary(lm(x ~ z))
 ```
 
 We can see that we have a very strong instrument. The way we defined the simulation a unit increase in $Z$ is reflected directly in $X$. If we look at the formula $X = XStar + Z$. We can make this instrument weaker by reducing how much of $X$ is dependent on $Z$. For example:
 
 ```{r}
-x <- xStar + 0.08*z
-summary(lm(x~z))
+x <- xStar + 0.08 * z
+summary(lm(x ~ z))
 ```
 
 
