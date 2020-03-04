@@ -4,7 +4,7 @@ output: html_document
 ---
 ## Measuring the effect of mosquito net use on malaria infection
 
-Imagine that the organization you work for is laying out a project to distribute mosquito nets to help combat malaria transmitions. You are in charge of running the impact evaluation of this program. You realize that it is unethical to randomize who receives the nets, so you consider an encouragement design. You decide to select five villages to send SMS reminders every night encouraging them to use the mosquito nets. (This example is using simulated data)
+Imagine that the organization you work for is laying out a project to distribute mosquito nets to help combat malaria transmitions. You are in charge of running the impact evaluation of this program. You realize that it is unethical to randomize who receives the nets, so you consider an encouragement design. You decide to randomly select five villages out of the ten to send SMS reminders every night encouraging them to use the mosquito nets. (This example is using simulated data)
 
 <center>
 <img src="./data/dag_program.png" alt="dag_program" width="600"/></center>
