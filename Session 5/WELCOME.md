@@ -2,8 +2,7 @@
 
 ### Overview of the lab
 
-Today we will have a look at instrumental variables. We will explore encouragement experimental designs and how IVs can be used in observational data settings. Additionally, we will learn how to calculate our two-stage square least regressions with `ivreg`
-
+Today we will have a look at instrumental variables. We will explore encouragement experimental designs and how IVs can be used in observational data settings. Additionally, we will learn how to calculate our LATE manually with the wald estimator and in R with two-stage square least regressions through `ivreg`
 
 - Questions about `Assignment 4` - 10 mins
 - Instrumental variables - 30 mins

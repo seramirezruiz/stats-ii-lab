@@ -4,9 +4,12 @@ output: html_document
 ---
 ## Measuring the effect of mosquito net use on malaria infection
 
-Imagine that the organization you work for is laying out a project to distribute mosquito nets to help combat malaria transmitions. You are in charge of running the impact evaluation of this program. You realize that it is unethical to randomize who receives the nets, so you consider an encouragement design. You decide to select five villages to send SMS reminders every night encouraging them to use the mosquito nets. (This example is using simulated data)
+Imagine that the organization you work for is laying out a project to distribute mosquito nets to help combat malaria transmitions. You are in charge of running the impact evaluation of this program. You realize that it is unethical to randomize who receives the nets, so you consider an encouragement design. You decide to randomly select five villages out of the ten to send SMS reminders every night encouraging them to use the mosquito nets. (This example is using simulated data)
 
-![](./data/dag_program.png)
+<center>
+<img src="./data/dag_program.png" alt="dag_program" width="600"/></center>
+<br>
+<br>
 
 For this evaluation to render credible results we need to fulfill a certain set of assumtions:
 
@@ -16,7 +19,7 @@ For this evaluation to render credible results we need to fulfill a certain set 
 
 **c) Exclusion restriction:** The instrument only affects the outcome via the treatment. In other words, there are no alternative paths through which our SMS can have an effect on malaria infections other that the use of the mosquito nets.
 
-**d) Monotonicity:** No defiers. We assume that non-compliers fall in the camp of always- and never-takers.
+**d) Monotonicity:** No defiers. We assume that non-compliers fall in the camp of always- and never-takers. We would not expect subjects who when encouraged would not use the nets, but would use them if they did not recieve the SMS reminder. <br>
 
 ```{r warning=FALSE, message=FALSE}
 
@@ -33,9 +36,14 @@ eval_data <- read.csv("./data/evaluation_data.csv") # loading simulated data fra
 
 ```
 
+<br>
 
 ### Exploring our results
 You receive the results of your intervention from the M&E officers. This is what they look like:
+<p>
+<center>
+<img src="./data/compliance.png" alt="compiance" width="600"/></center> <p>
+
 
 ```{r results ='asis'}
 st_options(footnote = NA) # to get rid of the footnote of ctable
@@ -43,13 +51,13 @@ print(ctable(eval_data$net_use, eval_data$sms, prop = "n"),
       method = "render") # include results = "asis" to view html in the knitted file
 ```
 
-<center>**LET'S EXPLORE COMPLIANCE TYPES FROM THIS TABLE TOGETHER**</center><br>
 
-a) Where are our compliers and non-compliers?
-b) How many people were encouraged via SMS, but did not use the net?
+<p>
+<center>**LET'S EXPLORE COMPLIANCE TYPES FROM THIS TABLE TOGETHER**</center><br>
+a) Where are our compliers and non-compliers?<br>
+b) How many people were encouraged via SMS, but did not use the net?<br>
 c) How many people were not encouraged via SMS, yet they utilized the net?
 
-<br>
 <br>
 
 Additionally, we can explore our data visually to check beyond compliance and see in which groups malaria was present. In this case, we are dealing with binary outcomes. That is, you can either be or not be infected, which are represented by the color dimension in different groups.
@@ -69,48 +77,82 @@ ggplot(eval_data, aes(x = factor(sms),
        y = "Treatment",
        color = "")
 ```
+<br>
 
 ## Exploring our set-up
+<br>
 
-**- Let's check whether SMS encouragement is a strong instrument.** <p>
+#### Let's check whether SMS encouragement is a strong instrument
 In other words, we are looking at the relevance assumption. Does our SMS encouragement create changes in our mosquito net use?
 
 ```{r}
 summary(lm(net_use ~ sms, eval_data))
 ```
 Economists have established as a "rule-of-thumb" for the case of a single endogenous regressor to be considered a strong instrument should have a **F-statistic** ^[An F statistic is a value you get when you run an ANOVA test or a regression analysis to find out if the means between two populations are significantly different. It’s similar to a T statistic from a T-Test; A-T test will tell you if a single variable is statistically significant and an F test will tell you if a group of variables are jointly significant.] greater than 10. From this regression, we can see that SMS encouragement is a strong instrument. Additionally, the substantive read in this case is that only 33% of those who did not receive the SMS utilized the mosquito nets, where as 78% of those who got the SMS encouragement did. 
-<p><p>
-**- Let's gather a naïve estimate of mosquito net use and malaria infection.** <p>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+#### Let's gather a naïve estimate of mosquito net use and malaria infection.
+<p>
 Also, why do you think we call this a naïve estimate?
 
 ```{r}
 naive_model <- lm(malaria ~ net_use, eval_data)
 summary(naive_model)
 ```
-<p><p>
-**- Let's gather our intent-to-treat effect (ITT).** <p>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+#### Let's gather our intent-to-treat effect (ITT) 
+<p>
 This is the effect that our SMS encouragement had on malaria infections. $ITT = E(Malaria_i|SMS=1) - E(Malaria_i|SMS=0)$. What does this tell us?
 
 ```{r}
 itt_model <- lm(malaria ~ sms, eval_data)
 summary(itt_model)
 ```
-<p><p>
-**- Let's gather out local average treatment effect (LATE).**<p>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+
+##Let's gather out local average treatment effect (LATE)
+
 We have several options for this:
 
-- Wald Estimator $LATE = \frac{con(Y_i,Z_i)}{cov(D_i,Z_i)}$. We can calculate this by hand. Let's try that now, using the values from the table above. In the numerator we need the proportion of compliers, which is the proportion of the compliers and always-takers among those that got the encouragement, minus the proportion of always-takers among those that did not receive the encouragement. In the denomenator, we need the average malaria rates among those who did and did not receive an SMS (no SMS = 0.504, yes SMS = 0.18).
+- **Wald Estimator** We can calculate this by hand. Let's try that now, using the values from the table. We can also calculate the average malaria rates among those who did and did not receive an SMS (no SMS = 0.504, yes SMS = 0.18).
+$$LATE = \frac{cov(Y_i,Z_i)}{cov(D_i,Z_i)}$$
 
-<span style = "color:blue">
-$E(Y | Z = 0)$ = 0.504 <br>
-$E(Y | Z = 1)$ = 0.18 <br>
-$E(D ∣ Z = 1)$ = 390 / (390 + 110) = 0.78 <br>
-$E(D ∣ Z = 0)$ = 165 / (165 + 335) = 0.33 <br>
-$LATE$ = (0.18 - 0.504) / (0.78 - 0.33) = -0.72 <br>
-</span>
+<table class="table table-bordered st-table st-table-bordered st-cross-table ">
+<thead><tr><th></th><th colspan="2" align="center" class="st-protect-top-border">sms</th>
+<th colspan="1"></th></tr><tr><td align="center"><strong>net_use</strong></td>
+<th colspan="1" align="center">0</th><th colspan="1" align="center">1</th><th colspan="1" align="center">Total</th></tr></thead><tbody><tr><td><strong align="center">0</strong></td><td>
+<span>335</span></td><td><span>110</span></td><td><span>445</span></td></tr><tr><td><strong align="center">1</strong></td><td><span>165</span></td><td><span>390</span></td><td><span>555</span></td></tr><tr><td><strong align="center">Total</strong></td><td><span>500</span></td><td><span>500</span></td><td><span>1000</span></td></tr></tbody></table>
+
+
+**Let's take a look at our numerator**  $cov(Y_i,Z_i)$ <br>
+
+>$E(Y|Z = 1)$ = 0.18 <br>
+>$E(Y|Z = 0)$ = 0.504 <br>
+
+**Let's take a look at our denominator**  $cov(D_i,Z_i)$ <br>
+
+
+>$E(D ∣ Z = 1) = \frac{390}{(390 + 110)} = 0.78$ <br>
+>$E(D ∣ Z = 0) = \frac{165}{(165 + 335)} = 0.33$ <br>
+
+**We can calculate our LATE**
+$$LATE =  \frac{(0.18 - 0.504)}{(0.78 - 0.33)} = -0.72$$<br>
 
 (You can also do this with the sample code that Professors Munzert and Stoetzer utilized in their sessions, which is similar to the above except using the `covariance` function). 
-
 
 - Two-stage Least Squares (2SLS), manually:
 
@@ -132,18 +174,49 @@ summary(late_model)
 ```
 <p><center>What is the substantive reading of these results?</center> 
 
+<br>
+<br>
+<br>
+<br>
+<br>
+
+
+## Mechanics behing two-stage least squares (2SLS)
+<p>
+![](./data/instrumental-variables.gif)<p>
+
+What ivreg() is doing in the background is the following:
+
+```{r}
+net_use_hat <- lm(net_use ~ sms, eval_data)$fitted.values # get fitted values from first stage (the part of x that is exogenously driven by z)
+summary(lm(eval_data$malaria ~ net_use_hat)) # run second stage with instrumented x (careful, the standard errors are wrong; better use ivreg() from AER instead)
+```
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
 ## Thinking about the validity of instruments
 
-![](./data/validity_ivs.png)
+<center>
+<img src="./data/validity_ivs.png" alt="validity_ivs" width="600"/></center>
+
 <p>
-We can also adapt the ivreg() syntax to accomodate valid conditional instruments:
+**We can also adapt the ivreg() syntax to accomodate valid conditional instruments:**
 
-<center>ivreg(Y ~ D + W | Z + W)</center>
+<center>**ivreg(Y ~ D + W | Z + W)**</center>
 
-<p><p>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 
 ## Weak instruments
-
+<p>
 We will turn the instrument from the lecture into a weak instrument.
 
 ```{r}
@@ -162,9 +235,15 @@ x <- xStar + z
 y <- 1 + x + c + rnorm(1000, 0, 0.5)
 ```
 <br>
-**Can we draw a DAG based on this simulation?**<p>
+
+<center>**Can we draw a DAG based on this simulation?**</center>
+<p>
 
 We have a portion of our $X$, that is $X*$, which has a common variance with $C$. We also have our instrument $Z$ that has a random normal distribution and is defining the rest of $X$. Finally, we have our outcome $Y$ which is a function of $X$, $C$, and some external factors.
+
+<br>
+<br>
+<br>
 
 Let's see if we have a strong or weak instrument:
 
@@ -172,13 +251,16 @@ Let's see if we have a strong or weak instrument:
 summary(lm(x ~ z))
 ```
 
+<br>
+
 We can see that we have a very strong instrument. The way we defined the simulation a unit increase in $Z$ is reflected directly in $X$. If we look at the formula $X = XStar + Z$. We can make this instrument weaker by reducing how much of $X$ is dependent on $Z$. For example:
+<br>
 
 ```{r}
 x <- xStar + 0.08 * z
 summary(lm(x ~ z))
 ```
-
+<br>
 
 **For the third task you will have to adapt the simulation code provided in the lecture to create a flawed/invalid instrument (which is flawed because it is connected to the outcome through another variable other than the treatment).**
 
