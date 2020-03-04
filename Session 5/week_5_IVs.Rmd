@@ -99,20 +99,32 @@ summary(itt_model)
 **- Let's gather out local average treatment effect (LATE).**<p>
 We have several options for this:
 
-- Wald Estimator $LATE = \frac{con(Y_i,Z_i)}{cov(D_i,Z_i)}$. We can calculate this by hand. Let's try that now, using the values from the table above. We can also calculate the average malaria rates among those who did and did not receive an SMS (no SMS = 0.504, yes SMS = 0.18).
+- Wald Estimator $LATE = \frac{con(Y_i,Z_i)}{cov(D_i,Z_i)}$. We can calculate this by hand. Let's try that now, using the values from the table above. In the numerator we need the proportion of compliers, which is the proportion of the compliers and always-takers among those that got the encouragement, minus the proportion of always-takers among those that did not receive the encouragement. In the denomenator, we need the average malaria rates among those who did and did not receive an SMS (no SMS = 0.504, yes SMS = 0.18).
 
->$E(Y | Z = 0)$ = 0.504 <br>
->$E(Y | Z = 1)$ = 0.18 <br>
->$E(D ∣ Z = 1)$ = 390 / (390 + 110) = 0.78 <br>
->$E(D ∣ Z = 0)$ = 165 / (165 + 335) = 0.33 <br>
->$LATE$ = (0.18 - 0.504) / (0.78 - 0.33) = -0.72 <br>
+<span style = "color:blue">
+$E(Y | Z = 0)$ = 0.504 <br>
+$E(Y | Z = 1)$ = 0.18 <br>
+$E(D ∣ Z = 1)$ = 390 / (390 + 110) = 0.78 <br>
+$E(D ∣ Z = 0)$ = 165 / (165 + 335) = 0.33 <br>
+$LATE$ = (0.18 - 0.504) / (0.78 - 0.33) = -0.72 <br>
+</span>
 
-You can also do this with the sample code that Professors Munzert and Stoetzer utilized in their sessions, which is similar to the above except using the covariance function. 
+(You can also do this with the sample code that Professors Munzert and Stoetzer utilized in their sessions, which is similar to the above except using the `covariance` function). 
 
-- Two-stage Least Squares (2SLS). We will learn how to do this with ivreg(), which is part of the `AER` package. It fits instrumental-variable regression through two-stage least squares. The syntax is the following:
 
-<center>ivreg(outcome ~ treatment | instrument, data)</center>
- <p>
+- Two-stage Least Squares (2SLS), manually:
+
+<span style = "color:blue">
+1st stage: regress the cause $D$ on the instrument $Z$, and grab fitted values <br>
+`data$Dhat <- lm(D ~ Z, data)$fitted_values` <br>
+2nd stage: regress the outcome $Y$ on those fitted values $\hat{D}$ <br>`lm(Y ~ Dhat, data)`
+</span>
+
+- 2SLS with ivreg() from the `AER` package: The syntax is the following:
+
+<span style = "color:blue">
+ivreg(outcome ~ treatment | instrument, data)
+</span>
 
 ```{r}
 late_model <- ivreg(malaria ~ net_use | sms, data = eval_data)

@@ -383,19 +383,18 @@ summary(itt_model)</code></pre>
 <p>
 <p>We have several options for this:</p>
 <ul>
-<li>Wald Estimator <span class="math inline">\(LATE = \frac{con(Y_i,Z_i)}{cov(D_i,Z_i)}\)</span>. We can calculate this by hand. Let’s try that now, using the values from the table above. We can also calculate the average malaria rates among those who did and did not receive an SMS (no SMS = 0.504, yes SMS = 0.18).</li>
+<li>Wald Estimator <span class="math inline">\(LATE = \frac{con(Y_i,Z_i)}{cov(D_i,Z_i)}\)</span>. We can calculate this by hand. Let’s try that now, using the values from the table above. In the numerator we need the proportion of compliers, which is the proportion of the compliers and always-takers among those that got the encouragement, minus the proportion of always-takers among those that did not receive the encouragement. In the denomenator, we need the average malaria rates among those who did and did not receive an SMS (no SMS = 0.504, yes SMS = 0.18).</li>
 </ul>
-<blockquote>
-<p><span class="math inline">\(E(Y | Z = 0)\)</span> = 0.504 <br> <span class="math inline">\(E(Y | Z = 1)\)</span> = 0.18 <br> <span class="math inline">\(E(D ∣ Z = 1)\)</span> = 390 / (390 + 110) = 0.78 <br> <span class="math inline">\(E(D ∣ Z = 0)\)</span> = 165 / (165 + 335) = 0.33 <br> <span class="math inline">\(LATE\)</span> = (0.18 - 0.504) / (0.78 - 0.33) = -0.72 <br></p>
-</blockquote>
-<p>You can also do this with the sample code that Professors Munzert and Stoetzer utilized in their sessions, which is similar to the above except using the covariance function.</p>
+<p><span style="color:blue"> <span class="math inline">\(E(Y | Z = 0)\)</span> = 0.504 <br> <span class="math inline">\(E(Y | Z = 1)\)</span> = 0.18 <br> <span class="math inline">\(E(D ∣ Z = 1)\)</span> = 390 / (390 + 110) = 0.78 <br> <span class="math inline">\(E(D ∣ Z = 0)\)</span> = 165 / (165 + 335) = 0.33 <br> <span class="math inline">\(LATE\)</span> = (0.18 - 0.504) / (0.78 - 0.33) = -0.72 <br> </span></p>
+<p>(You can also do this with the sample code that Professors Munzert and Stoetzer utilized in their sessions, which is similar to the above except using the <code>covariance</code> function).</p>
 <ul>
-<li>Two-stage Least Squares (2SLS). We will learn how to do this with ivreg(), which is part of the <code>AER</code> package. It fits instrumental-variable regression through two-stage least squares. The syntax is the following:</li>
+<li>Two-stage Least Squares (2SLS), manually:</li>
 </ul>
-<center>
-ivreg(outcome ~ treatment | instrument, data)
-</center>
-<p>
+<p><span style="color:blue"> 1st stage: regress the cause <span class="math inline">\(D\)</span> on the instrument <span class="math inline">\(Z\)</span>, and grab fitted values <br> <code>data$Dhat &lt;- lm(D ~ Z, data)$fitted_values</code> <br> 2nd stage: regress the outcome <span class="math inline">\(Y\)</span> on those fitted values <span class="math inline">\(\hat{D}\)</span> <br><code>lm(Y ~ Dhat, data)</code> </span></p>
+<ul>
+<li>2SLS with ivreg() from the <code>AER</code> package: The syntax is the following:</li>
+</ul>
+<p><span style="color:blue"> ivreg(outcome ~ treatment | instrument, data) </span></p>
 <pre class="r"><code>late_model &lt;- ivreg(malaria ~ net_use | sms, data = eval_data)
 summary(late_model)</code></pre>
 <pre><code>## 
