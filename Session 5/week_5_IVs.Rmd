@@ -152,21 +152,12 @@ $$LATE = \frac{cov(Y_i,Z_i)}{cov(D_i,Z_i)}$$
 **We can calculate our LATE**
 $$LATE =  \frac{(0.18 - 0.504)}{(0.78 - 0.33)} = -0.72$$<br>
 
-(You can also do this with the sample code that Professors Munzert and Stoetzer utilized in their sessions, which is similar to the above except using the `covariance` function). 
+You can also do this with the sample code that Professors Munzert and Stoetzer utilized in their sessions, which is similar to the above except using the covariance function. 
 
-- Two-stage Least Squares (2SLS), manually:
+- **Two-stage Least Squares (2SLS)**. We will learn how to do this with ivreg(), which is part of the `AER` package. It fits instrumental-variable regression through two-stage least squares. The syntax is the following:
 
-<span style = "color:blue">
-1st stage: regress the cause $D$ on the instrument $Z$, and grab fitted values <br>
-`data$Dhat <- lm(D ~ Z, data)$fitted_values` <br>
-2nd stage: regress the outcome $Y$ on those fitted values $\hat{D}$ <br>`lm(Y ~ Dhat, data)`
-</span>
-
-- 2SLS with ivreg() from the `AER` package: The syntax is the following:
-
-<span style = "color:blue">
-ivreg(outcome ~ treatment | instrument, data)
-</span>
+<center>ivreg(outcome ~ treatment | instrument, data)</center>
+ <p>
 
 ```{r}
 late_model <- ivreg(malaria ~ net_use | sms, data = eval_data)
