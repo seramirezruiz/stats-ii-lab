@@ -3,21 +3,26 @@ title: "Research Discontinuity Design (RDD)"
 output: html_document
 ---
 
+#### Resources
+1. R packages for RDD: https://eric.ed.gov/?id=EJ1141190
+2. Short overview of RDD with examples: https://www.youtube.com/watch?v=tWRsYWSP3fM
+3. local regression introduction: https://www.youtube.com/watch?v=Vf7oJ6z2LCc
+4. A more technical introduction: https://www.youtube.com/watch?v=ncF7ArjJFqM&t=3s
+5. Imbens & Kalyanaraman (2012) Optimal bandwidth choice: https://academic.oup.com/restud/article/79/3/933/1533189
+
 ## Measuring the effect of the minimum legal drinking age (MLDA) on mortality
 <p>
 > In an effort to address the social and public health problems associated with underage drinking, a group of American college presidents have lobbied states to return the minimum legal drinking age (MLDA) to the Vietnam era threshold of 18. The theory behind this effort (known as the Amethyst Initiative) is that legal drinking at age 18 discourages binge drinking and promotes a culture of mature alcohol consumption. This contrasts with the traditional view that the age-21 MLDA, while a blunt and imperfect tool, reduces youth access to alcohol, thereby preventing some harm. 
 **Angrist and Pischke (2014)**
 
 You have been hired as an outside consultant by Mothers Against Drunk Driving (MADD) to study whether the over-21 drinking minimum in the US helps reduce alcohol consumption by young adults and its harms, or is it just not working.
-*This example is based on data from Carpenter and Dobkin (2011)*
+*This example is based on data from Carpenter and Dobkin (2011).*
 <p>
 
 ```{r warning=FALSE, message=FALSE}
 
 library(dplyr) # for data wrangling
 library(ggplot2) # for creating plots
-library(stargazer) # for formatting model output
-library(kableExtra) # for formatting data frames
 library(rdd) # for RDestimate()
 
 set.seed(42) # for consistent results
@@ -29,16 +34,19 @@ mlda <- read.csv("./data/mlda.csv") # loading data from Mastering Metrics
 
 #### Checking visually whether a sharp-RDD makes sense for the analysis
 
-What we are looking for is whether our threshold is in fact the cut-off for treatment. In this case, the law is pretty clear young adults in the US can legally drink at age 21.
+What we are looking for is whether our threshold is in fact the cut-off for treatment. In this case, the law is pretty clear: young adults in the US can legally drink at age 21.
 
 ```{r fig.align="center"}
-ggplot(mlda, aes(x=agecell, y=treatment, color=factor(treatment))) +
+ggplot(mlda, aes(x = agecell, # actual age
+                 y = treatment, # are they over 21 or not
+                 color = factor(treatment))) +
   geom_point() + 
-  labs(x= "Age", y = "Mortality rate from motor vehicle \naccidents (per 100,000)") +
-  scale_color_discrete(name = " ", labels = c("Under legal drinking age", "Over legal drinking age")) +
+  labs(x = "Age", 
+       y = "Mortality rate from motor vehicle \naccidents (per 100,000)") +
+  scale_color_discrete(name = " ", 
+                       labels = c("Under legal drinking age", "Over legal drinking age")) +
   geom_vline(xintercept = 21, linetype = "dotted") +
   theme_minimal()
-
 ```
 <p>
 We can see from the graph that at the 21-years-of-age threshold, young adults can legally consume and buy alcohol in the US, which would make age a viable forcing variable for a sharp-RDD set-up.
@@ -47,7 +55,7 @@ We can see from the graph that at the 21-years-of-age threshold, young adults ca
 
 ### Running our regression models
 
-As it was pointed out in the lecture, we can decide on a model that we believe reflects the relationship of our $E(Y_i|\tilde{X}_i)$:
+As was pointed out in the lecture, we must decide on a model that we believe reflects the relationship of our $E(Y_i|\tilde{X}_i)$:
 
 - linear, common slope <p>
 - linear, different slopes <p>
@@ -55,12 +63,14 @@ As it was pointed out in the lecture, we can decide on a model that we believe r
 
 Remember that each model corresponds to a particular set of assumptions (Slides 19-28)
 <p>
-We will show you how to visualize this with `ggplot`. You can find a base R `plot`alternative in the lecture code for this week's lecture.<p>
+We will show you how to visualize this with `ggplot`. You can find a base R `plot` alternatives in the lecture code for this week's lecture.<p>
 
 <center>**LET'S LOOK AT A SCATTERPLOT TO GET AN IDEA OF WHAT WE ARE DEALING WITH**</center>
 <p>
 ```{r fig.align="center"}
-ggplot(mlda, aes(x=agecell, y=outcome)) +
+ggplot(mlda, 
+       aes(x = agecell, # age 
+           y = outcome)) + # mortality rate per 100k accidents
   geom_point() +
   geom_vline(xintercept = 21, linetype = "dotted") +
   labs(title = "Exploratory plot",
@@ -72,11 +82,11 @@ ggplot(mlda, aes(x=agecell, y=outcome)) +
 
 #### Linear model with common slopes
 
-Let's run a linear model with common slopes and plot our results. <p>
+Let's run a linear model with common slopes and plot our results. *Note that the forcing variable in this case (age) is centered at 0 (age 21) and is the distance from age 21 in years.*<p>
 
 ```{r}
 # running linear model with common slope
-linear_common_slope <- lm(outcome ~ treatment + agecell, data = mlda)
+linear_common_slope <- lm(outcome ~ treatment + age, data = mlda)
 summary(linear_common_slope)
 ```
 <center>**WHAT DO THESE RESULTS TELL US?** </center>
@@ -84,15 +94,24 @@ summary(linear_common_slope)
 We can graph our results with `ggplot` by extracting the predicted values of the model to recreate the linear fit: <p>
 
 ```{r fig.align = 'center'}
-mlda$yhat_linear <- predict(linear_common_slope) #we create a new variable containing the predicted years of schooling from the model
+mlda$yhat_linear <- predict(linear_common_slope) # we create a new variable containing the predicted mortality rate
 
-linear_plot <- mlda %>% ggplot(aes(x = agecell,  y = yhat_linear, col = as.factor(treatment))) +
-  geom_point(aes(x = agecell, y = outcome, col = as.factor(treatment))) +
+linear_plot <- mlda %>% 
+  ggplot(aes(x = agecell,  
+             y = yhat_linear, 
+             col = factor(treatment))) +
+  geom_point(aes(x = agecell, 
+                 y = outcome, 
+                 col = factor(treatment))) +
   labs(title = "Linear model with common slope",
        x = "Forcing variable (Age)",
        y = "Mortality rate from motor vehicle \naccidents (per 100,000)") +
-  geom_line(data = mlda[mlda$agecell >= 21,], color = "#00BFC4", size = 1) +
-  geom_line(data = mlda[mlda$agecell < 21,], color = "#F8766D", size = 1) +
+  geom_line(data = mlda[mlda$agecell >= 21,], 
+            color = "#00BFC4", 
+            size = 1) +
+  geom_line(data = mlda[mlda$agecell < 21,], 
+            color = "#F8766D", 
+            size = 1) +
   scale_color_manual(name = "",
                      values = c("#F8766D", "#00BFC4"),
                      labels = c("Control", "Treatment")) +
@@ -105,7 +124,7 @@ linear_plot
 
 #### Linear model with different slopes
 
-Let's run the linear model to gather the slopes for both groups and plot our results. This is achieved by interacting our treatment and running variables<p>
+Let's run the linear model to gather the slopes for both groups and plot our results. This is achieved by interacting our treatment and forcing variables.<p>
 
 ```{r}
 linear_different_slope <- lm(outcome ~ treatment*forcing, data = mlda)
@@ -116,7 +135,10 @@ summary(linear_different_slope)
 We can graph our results with `ggplot` by just adding a smooth geom. Since we have added treatment to our color aestethic, `ggplot` will automatically create the regression line for each group<p>
 ```{r fig.align = 'center'}
 
-diff_slopes_plot <- mlda %>% ggplot(aes(x = agecell,  y = outcome, col = as.factor(treatment))) +
+diff_slopes_plot <- mlda %>% 
+  ggplot(aes(x = agecell,  
+             y = outcome, 
+             col = factor(treatment))) +
   geom_point() +
   geom_smooth(method = "lm", se = F) +
   labs(title = "Linear model with different slopes",
@@ -141,22 +163,35 @@ We can input this in our regression model as follows:
 <p>
 
 ```{r}
-quadratic <- lm(outcome ~ agecell + I(agecell^2) + treatment + I(agecell*treatment) + I((agecell^2)*treatment), data = mlda)
+quadratic <- lm(outcome ~ agecell + 
+                  I(agecell^2) + 
+                  treatment + 
+                  I(agecell*treatment) + 
+                  I((agecell^2)*treatment), data = mlda)
 summary(quadratic)
 ```
 <center>**WHAT DO THESE RESULTS TELL US?** </center>
 <p><p>
 We can graph our results with `ggplot` by extracting the predicted values of our quadratic model to recreate the fit: <p>
 ```{r fig.align = 'center'}
-mlda$yhat_quadratic <- predict(quadratic) #we create a new variable containing the predicted years of schooling from the model
+mlda$yhat_quadratic <- predict(quadratic) 
 
-quadratic_plot <- mlda %>% ggplot(aes(x = agecell,  y = yhat_quadratic, col = as.factor(treatment))) +
-  geom_point(aes(x = agecell, y = outcome, col = as.factor(treatment))) +
-  labs(title = "Linear model with common slope",
+quadratic_plot <- mlda %>% 
+  ggplot(aes(x = agecell, 
+             y = yhat_quadratic, 
+             col = factor(treatment))) +
+  geom_point(aes(x = agecell, 
+                 y = outcome, 
+                 col = factor(treatment))) +
+  labs(title = "Quadratic plot",
        x = "Forcing variable (Age)",
        y = "Mortality rate from motor vehicle \naccidents (per 100,000)") +
-  geom_line(data = mlda[mlda$agecell >= 21,], color = "#00BFC4", size = 1) +
-  geom_line(data = mlda[mlda$agecell < 21,], color = "#F8766D", size = 1) +
+  geom_line(data = mlda[mlda$agecell >= 21,], 
+            color = "#00BFC4", 
+            size = 1) +
+  geom_line(data = mlda[mlda$agecell < 21,], 
+            color = "#F8766D", 
+            size = 1) +
   scale_color_manual(name = "",
                      values = c("#F8766D", "#00BFC4"),
                      labels = c("Control", "Treatment")) +
@@ -167,9 +202,11 @@ quadratic_plot
 
 #### Calculating the LATE with RDestimate()
 
-RDestimate() is part of the `rdd` package. It performs local linear regressions to either side of the cutpoint using the Imbens-Kalyanaraman optimal bandwidth calculation. The syntax is very similar to the one we are familiar:
+RDestimate() is part of the `rdd` package. It performs local linear regressions to either side of the cutpoint using the Imbens-Kalyanaraman optimal bandwidth calculation. The syntax is very similar to the one we are familiar with:
 
 <center>model <- RDestimate(outcome ~ forcingvariable, cutoff = cutoffvalue, data = dataframe)</center>
+
+We have the option to set the cutpoint, kernel type, standard error type, etc.: https://www.rdocumentation.org/packages/rdd/versions/0.57/topics/RDestimate
 
 ```{r}
 llr <- RDestimate(outcome ~ agecell, data = mlda, cutpoint = 21)
@@ -210,17 +247,27 @@ cct_data <- read.csv("./data/cct_data.csv") # loading simulated data frame of th
 What we are looking for in this case is whether our €20000 threshold is in fact the cut-off for treatment. That is to say, that only those who had a household income of equal or less than €20000 received the cash transfer.
 
 ```{r fig.align = 'center'}
-ggplot(cct_data, aes(x = hh_income, y = years_of_schooling, color = factor(treatment))) + 
+ggplot(cct_data, 
+       aes(x = hh_income, 
+           y = years_of_schooling, 
+           color = factor(treatment))) + 
   geom_point() + 
-  labs(x= "Household Income", y = "Years of Schooling") +
-  scale_color_discrete(name = " ", labels = c("No treatment", "Treatment")) +
+  labs(x = "Household Income", 
+       y = "Years of Schooling") +
+  scale_color_discrete(name = " ", 
+                       labels = c("No treatment", "Treatment")) +
   geom_vline(xintercept = 20000, linetype = "dotted") +
   theme_minimal()
 
-ggplot(cct_data, aes(x = hh_income, y = treatment, color = factor(treatment))) + 
+ggplot(cct_data, 
+       aes(x = hh_income, 
+           y = treatment, 
+           color = factor(treatment))) + 
   geom_point() + 
-  labs(x= "Household Income", y = "Treatment") +
-  scale_color_discrete(name = " ", labels = c("No treatment", "Treatment")) +
+  labs(x = "Household Income", 
+       y = "Treatment") +
+  scale_color_discrete(name = " ", 
+                       labels = c("No treatment", "Treatment")) +
   geom_vline(xintercept = 20000, linetype = "dotted") +
   theme_minimal()
 ```
@@ -248,18 +295,26 @@ summary(ed_achievement)
 Locally weighted smoothing is a popular tool used in regression analysis that creates a smooth line through a scatter plot to help you to see relationship between variables and foresee trends. We can introduce it to our `ggplot` as a part of geom_smooth by calling method "loess". 
 
 ```{r fig.align = 'center'}
-ggplot(cct_data, aes(x = hh_income, y = years_of_schooling, color = factor(treatment))) + 
+ggplot(cct_data, 
+       aes(x = hh_income, 
+           y = years_of_schooling, 
+           color = factor(treatment))) + 
   geom_point(alpha = 0.1) + 
-  labs(x= "Household Income", y = "Years of Schooling") +
+  labs(x = "Household Income", 
+       y = "Years of Schooling") +
   geom_smooth(method = "loess") +
-  scale_color_discrete(name = " ", labels = c("No treatment", "Treatment")) +
+  scale_color_discrete(name = " ", 
+                       labels = c("No treatment", "Treatment")) +
   geom_vline(xintercept = 20000, linetype = "dotted") +
   theme_minimal()
 ```
 <p> The LOESS smoothing is not very visible in this relationship because of the way we defined the simulated data. Let's look at how it would look in our drinking age example:
 <p>
 ```{r fig.align="center"}
-ggplot(mlda,aes(x = agecell,  y = outcome, col = as.factor(treatment))) +
+ggplot(mlda,
+       aes(x = agecell,  
+           y = outcome, 
+           col = factor(treatment))) +
   geom_point() +
   geom_smooth(method = "loess") +
   labs(title = "LOESS smoothing",
@@ -279,8 +334,9 @@ ggplot(mlda,aes(x = agecell,  y = outcome, col = as.factor(treatment))) +
 You are made aware by a tax expert from your unit that €20000 is the upper-boundary for a very well known tax concession. You are afraid that people may be sorting themselves before the household income cut-off to become beneficiaries of multiple programs. You decide to check your data.
 
 ```{r fig.align="center"}
-ggplot(cct_data, aes(x= hh_income)) +
-  geom_histogram(bins=25) +
+ggplot(cct_data, 
+       aes(x = hh_income)) +
+  geom_histogram(bins = 25) +
   labs(title = "Income distribution",
        x = "Household Income",
        y = "Number of respondents") +
