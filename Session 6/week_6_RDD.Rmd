@@ -82,11 +82,11 @@ ggplot(mlda,
 
 #### Linear model with common slopes
 
-Let's run a linear model with common slopes and plot our results. *Note that the forcing variable in this case (age) is centered at 0 (age 21) and is the distance from age 21 in years.*<p>
+Let's run a linear model with common slopes and plot our results. *Note that the forcing variable in this case (age) is centered at 0 (age 21) and is the distance from age 21 in years, while treatment is just binary over/under 21.*<p>
 
 ```{r}
 # running linear model with common slope
-linear_common_slope <- lm(outcome ~ treatment + age, data = mlda)
+linear_common_slope <- lm(outcome ~ treatment + forcing, data = mlda)
 summary(linear_common_slope)
 ```
 <center>**WHAT DO THESE RESULTS TELL US?** </center>
@@ -163,11 +163,12 @@ We can input this in our regression model as follows:
 <p>
 
 ```{r}
-quadratic <- lm(outcome ~ agecell + 
-                  I(agecell^2) + 
+quadratic <- lm(outcome ~ forcing + 
+                  I(forcing^2) + # I tells R to interpret "as is"
                   treatment + 
-                  I(agecell*treatment) + 
-                  I((agecell^2)*treatment), data = mlda)
+                  I(forcing * treatment) + 
+                  I((forcing^2) * treatment),
+                data = mlda)
 summary(quadratic)
 ```
 <center>**WHAT DO THESE RESULTS TELL US?** </center>
@@ -205,7 +206,8 @@ quadratic_plot
 RDestimate() is part of the `rdd` package. It performs local linear regressions to either side of the cutpoint using the Imbens-Kalyanaraman optimal bandwidth calculation. The syntax is very similar to the one we are familiar with:
 
 <center>model <- RDestimate(outcome ~ forcingvariable, cutoff = cutoffvalue, data = dataframe)</center>
-
+<br>
+<br>
 We have the option to set the cutpoint, kernel type, standard error type, etc.: https://www.rdocumentation.org/packages/rdd/versions/0.57/topics/RDestimate
 
 ```{r}
