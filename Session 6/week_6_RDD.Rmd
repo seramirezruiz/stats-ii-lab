@@ -42,7 +42,7 @@ ggplot(mlda, aes(x = agecell, # actual age
                  color = factor(treatment))) +
   geom_point() + 
   labs(x = "Age", 
-       y = "Mortality rate from motor vehicle \naccidents (per 100,000)") +
+       y = "Treatment Probability") +
   scale_color_discrete(name = " ", 
                        labels = c("Under legal drinking age", "Over legal drinking age")) +
   geom_vline(xintercept = 21, linetype = "dotted") +
