@@ -1,5 +1,5 @@
 ---
-title: "Research Discontinuity Design (RDD)"
+title: "Regression Discontinuity Design (RDD)"
 output: html_document
 ---
 
