@@ -4,12 +4,8 @@
 
 Today we will have a look at Regression Discontinuity Designs (RDDs). We will explore the concepts behind RDD, such as forcing variables and local randomization. Additionally, we will learn how to implement different model specifications fit to our data. Finally, we will learn how to utilize RDestimate from the `rdd` package.
 
-- Questions about `Assignment 5` - 10 mins
-- RDDs - 30 mins
-- Model specifications -  15 mins
-- Assumptions - 10 mins
-- An introduction to RDD in R - 30 mins
-- Questions about `Assignment 6` - 10 mins
+### Virtual tutorials
+[![Watch the video](https://img.youtube.com/vi/lsFlKinuneo/maxresdefault.jpg)](https://youtu.be/lsFlKinuneo)
 
 ### Further references
 
