@@ -89,7 +89,10 @@ Let's run a linear model with common slopes and plot our results. *Note that the
 linear_common_slope <- lm(outcome ~ treatment + forcing, data = mlda)
 summary(linear_common_slope)
 ```
-<center>**WHAT DO THESE RESULTS TELL US?** </center>
+<center>**WHAT DO THESE RESULTS TELL US?** </center><p>
+In line with our assumptions for linear models with common slope, we consider that treatment effect $D_i$ does not depend on the forcing $X_i$. We can formalize this model as:
+$$E(Y_i|X_i,D_i) = \tilde{\alpha} + \tau D_i + \beta\tilde{X}_i$$
+Hence we can say, that given our $\tau$ we can expect 4.53 more deaths from motor vehicle accidents per 100,000 for those who can legally drink. We also see that for every year of age increase, the number of expected deaths per 100,000 decreases by 3.15. (Our $\beta = -3.1488$).
 <p><p>
 We can graph our results with `ggplot` by extracting the predicted values of the model to recreate the linear fit: <p>
 
@@ -130,7 +133,10 @@ Let's run the linear model to gather the slopes for both groups and plot our res
 linear_different_slope <- lm(outcome ~ treatment*forcing, data = mlda)
 summary(linear_different_slope)
 ```
-<center>**WHAT DO THESE RESULTS TELL US?** </center>
+<center>**WHAT DO THESE RESULTS TELL US?** </center><p>
+In line with our assumptions for linear models with different slope, we allow our treatment effect $D_i$ to vary along the forcing $X_i$. We can formalize this model as:
+$$E(Y_i|X_i,D_i) = \tilde{\alpha} + \beta_oX_i+ \tau D_i + \tilde{\beta}D_i\tilde{X}_i$$
+Hence we can say, that at given our $\tau$, we can expect 4.53 more deaths from motor vehicle accidents per 100,000 for those who can legally drink at the threshold. Now we have two different slopes for year-of-age changes. For under-21 individuals, an increase of one year of age would on average result in 2.57 less deaths from motor vehicle accidents (our $\beta_0 = -2.5676$). For those of legal drinking age, we would expect 3.73 less deaths per 100,000 for every one year of age increase (our $\beta_0X_i + \tilde{\beta}D_i\tilde{X}_i = -2.5676 + (-1.1624) = - 3.73$).
 <p><p>
 We can graph our results with `ggplot` by just adding a smooth geom. Since we have added treatment to our color aestethic, `ggplot` will automatically create the regression line for each group<p>
 ```{r fig.align = 'center'}
@@ -157,7 +163,7 @@ diff_slopes_plot
 Let's run a quadratic model and plot our results. 
 
 <center>**THIS IS HOW WE WOULD FORMALIZE A QUADRATIC MODEL**</center>
-$$E(Y_i ∣ X_i, D_i) = \beta_0 + \beta_1\tilde{X_i} + \beta_2\tilde{X^2_i} + \beta_3D_i + \beta_4\tilde{X_i}D_i + \beta_5\tilde{X^2_i}D_i$$
+$$E(Y_i∣X_i, D_i) = \gamma_0 + \gamma_1\tilde{X_i} + \gamma_2\tilde{X^2_i} + \tau_3D_i + \alpha_1\tilde{X_i}D_i + \alpha_2\tilde{X^2_i}D_i$$
 <p>
 We can input this in our regression model as follows:
 <p>
@@ -171,7 +177,15 @@ quadratic <- lm(outcome ~ forcing +
                 data = mlda)
 summary(quadratic)
 ```
-<center>**WHAT DO THESE RESULTS TELL US?** </center>
+<center>**WHAT DO THESE RESULTS TELL US?** </center><p>
+In line with our assumptions for non-linear models, we allow our treatment effect $D_i$ to vary along the forcing $X_i$. In this case with quadratic interactions. We can formalize this model as:
+
+$$E(Y_i∣X_i, D_i) = \gamma_0 + \gamma_1\tilde{X_i} + \gamma_2\tilde{X^2_i} + \tau_3D_i + \alpha_1\tilde{X_i}D_i + \alpha_2\tilde{X^2_i}D_i$$
+Hence we can say, that at given our $\tau$, we can expect 4.66 more deaths from motor vehicle accidents per 100,000 for those who can legally drink at the threshold. We could also calculate the expected value of $Y$ at different levels of $X$.
+
+Say we want to now, what the expected value is for 23-year-olds. Since, our forcing variable is 0 at 21 years of age, we can think of 23 as 2. Additionally, 23-year-olds are above the legal drinking age minimum, therefore for them the value of $D$ if 1.
+$$E(Y | X=2, D =1) = 29.8090 - 2.9330(2) -0.1852(2)^2 + 4.6629(1) - 0.8231 (2*1) + 0.1985(2*1)^2 = 27.01$$
+Based on this, we would expect a mortality rate from motor vehicle accidents of 27.01 per 100,000 for 23-year-olds.
 <p><p>
 We can graph our results with `ggplot` by extracting the predicted values of our quadratic model to recreate the fit: <p>
 ```{r fig.align = 'center'}
@@ -215,6 +229,7 @@ llr <- RDestimate(outcome ~ agecell, data = mlda, cutpoint = 21)
 summary(llr)
 ```
 <center>**WHAT DO THESE RESULTS TELL US?** </center>
+The model is telling us that based on the Imbens-Kalyanaraman optimal bandwidth calculation, the LATE can be obtained from the values ±1.2109 from the cut-off. The estimated effect would be 4.97 more deaths per 100,000 for those over-21. *Note that the estimates are stable under the half- and double-bandwith specifications*
 <p><p>
 The most straight-forward way to graph the output of this model is through the base R `plot` function: <p>
 
@@ -288,7 +303,9 @@ ed_achievement <- lm(years_of_schooling ~ treatment + hh_income, data = cct_data
 summary(ed_achievement)
 ```
 
-<center>**WHAT DO THESE RESULTS TELL US?** </center>
+<center>**WHAT DO THESE RESULTS TELL US?** </center><p>
+In line with our assumptions for linear models with common slope, we consider that treatment effect, $D_i$, does not depend on the forcing $X_i$. Hence, we can expect that students who received the treatment get on average 2.4 more years of schooling. We also see that for every €1,000 increase in the household income, students are expectos to attain 0.6274 more years of education. (Our $\beta = -6.274e-04*1000$).
+
 <br>
 <br>
 <br>
