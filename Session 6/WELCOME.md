@@ -1,5 +1,11 @@
 # Session 6 - Regression Discontinuity Design (RDD)
 
+### Online tutorial
+
+[![Tutorial videos](https://user-images.githubusercontent.com/54796579/76893562-d830ac00-688c-11ea-9f8e-1a4bbdfa52fe.png)](https://drive.google.com/drive/folders/1Y9s5S_R9YNKP34kDOvaJKEZ11F2j2KEG)
+You can click on the slide thumbnail to access a drive folder containing the two videos of this week's online tutorial.
+*Special thanks to Marina, who took time off her week to put together these videos*
+
 ### Overview of the lab
 
 Today we will have a look at Regression Discontinuity Designs (RDDs). We will explore the concepts behind RDD, such as forcing variables and local randomization. Additionally, we will learn how to implement different model specifications fit to our data. Finally, we will learn how to utilize RDestimate from the `rdd` package.
