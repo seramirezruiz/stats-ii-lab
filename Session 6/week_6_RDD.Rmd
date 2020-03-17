@@ -183,7 +183,7 @@ In line with our assumptions for non-linear models, we allow our treatment effec
 $$E(Y_i∣X_i, D_i) = \gamma_0 + \gamma_1\tilde{X_i} + \gamma_2\tilde{X^2_i} + \tau_3D_i + \alpha_1\tilde{X_i}D_i + \alpha_2\tilde{X^2_i}D_i$$
 Hence we can say, that at given our $\tau$, we can expect 4.66 more deaths from motor vehicle accidents per 100,000 for those who can legally drink at the threshold. We could also calculate the expected value of $Y$ at different levels of $X$.
 
-Say we want to now, what the expected value is for 23-year-olds. Since, our forcing variable is 0 at 21 years of age, we can think of 23 as 2. Additionally, 23-year-olds are above the legal drinking age minimum, therefore for them the value of $D$ if 1.
+Say we want to know what the expected value is for 23-year-olds. Since our forcing variable is 0 at 21 years of age, we can think of 23 as 2. Additionally, 23-year-olds are above the legal drinking age minimum, therefore for them the value of $D$ is 1.
 $$E(Y | X=2, D =1) = 29.8090 - 2.9330(2) -0.1852(2)^2 + 4.6629(1) - 0.8231 (2*1) + 0.1985(2*1)^2 = 27.01$$
 Based on this, we would expect a mortality rate from motor vehicle accidents of 27.01 per 100,000 for 23-year-olds.
 <p><p>
@@ -219,7 +219,7 @@ quadratic_plot
 
 RDestimate() is part of the `rdd` package. It performs local linear regressions to either side of the cutpoint using the Imbens-Kalyanaraman optimal bandwidth calculation. The syntax is very similar to the one we are familiar with:
 
-<center>model <- RDestimate(outcome ~ forcingvariable, cutoff = cutoffvalue, data = dataframe)</center>
+<center>model <- RDestimate(outcome ~ forcingvariable, cutpoint = cutoffvalue, data = dataframe)</center>
 <br>
 <br>
 We have the option to set the cutpoint, kernel type, standard error type, etc.: https://www.rdocumentation.org/packages/rdd/versions/0.57/topics/RDestimate
