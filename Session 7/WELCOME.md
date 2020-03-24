@@ -1,10 +1,12 @@
 # Session 7 - Panel Data, Difference-in-Differences, and Fixed Effects
 
 ### Online tutorial
+During this session our work will revolve around time. We will have a look at panel data, difference-in-differences, and fixed effects. We hope all of you are safe and healthy. The instructors and us —Marina and Sebastian— are doing our best to transfer all of our teaching online. It is not ideal to have to take a 180º turn right in the middle of the semester. We are aware that it is also not easy for you. We are available to support you further as we approach the final stage of our course. We look forward to seeing you during the virtual Q&A sessions.
+
 You can click on the slide thumbnails to access the lab slides and script videos on Vimeo
 
 #### Lab slides 
-[![lab_slides](https://user-images.githubusercontent.com/54796579/77463739-6a453100-6e06-11ea-8a50-b464e7a53a87.png)](https://vimeo.com/400334323)
+[![lab_slides](https://user-images.githubusercontent.com/54796579/77472592-789a4980-6e14-11ea-8502-de3358a0ad0a.png)](https://vimeo.com/400334323)
 #### Lab script
 [![lab_script](https://user-images.githubusercontent.com/54796579/77463501-00c52280-6e06-11ea-9ce0-066c779c46ea.png)](https://vimeo.com/400335084)
 
