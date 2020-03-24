@@ -1,20 +1,24 @@
-# Session 6 - Regression Discontinuity Design (RDD)
+# Session 7 - Panel Data, Difference-in-Differences, and Fixed Effects
 
 ### Online tutorial
 
-[![Tutorial videos](https://user-images.githubusercontent.com/54796579/76893562-d830ac00-688c-11ea-9f8e-1a4bbdfa52fe.png)](https://drive.google.com/drive/folders/1Y9s5S_R9YNKP34kDOvaJKEZ11F2j2KEG)
-You can click on the slide thumbnail to access a drive folder containing the two videos of this week's online tutorial.
-*Special thanks to Marina, who took time off her week to put together these videos*
+#### Lab slides 
 
-### Overview of the lab
+[![lab_slides](https://user-images.githubusercontent.com/54796579/77463501-00c52280-6e06-11ea-9ce0-066c779c46ea.png)](https://vimeo.com/400334323)
 
-Today we will have a look at Regression Discontinuity Designs (RDDs). We will explore the concepts behind RDD, such as forcing variables and local randomization. Additionally, we will learn how to implement different model specifications fit to our data. Finally, we will learn how to utilize RDestimate from the `rdd` package.
+You can click on the slide thumbnail to access the lab slides video on Vimeo
+
+#### Lab script
+
+[![lab_script](https://user-images.githubusercontent.com/54796579/77463739-6a453100-6e06-11ea-8a50-b464e7a53a87.png)](https://vimeo.com/400335084)
+
 
 ### Further references
 
-**For RDDs in R**<p>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Regression Discontinuity Estimation - RDestimate(): https://www.rdocumentation.org/packages/rdd/versions/0.57/topics/RDestimate <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Optimal Bandwidth Choice for the Regression Discontinuity Estimator: https://doi.org/10.1093/restud/rdr043 <br>
+**Introducing time in R**<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Panel data econometrics in R:
+the plm package: https://cran.r-project.org/web/packages/plm/vignettes/plmPackage.html <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Pivoting with `tidyr`: https://tidyr.tidyverse.org/articles/pivot.html <br>
 
 **For learning more about table outputs** <p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Create Awesome HTML Table with knitr::kable and `kableExtra`: https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html <br>
@@ -26,6 +30,6 @@ Today we will have a look at Regression Discontinuity Designs (RDDs). We will ex
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`RMarkdown` cheatsheet: https://tinyurl.com/uqoelrx <p>
 
 
-### A short video about RDD
+### A short video about panel data
 
-[![Watch the video](https://img.youtube.com/vi/TfKwgGT2fSM/maxresdefault.jpg)](https://youtu.be/TfKwgGT2fSM)
+[![Watch the video](https://img.youtube.com/vi/tO99T1GQ6SY/maxresdefault.jpg)](https://youtu.be/tO99T1GQ6SY)
