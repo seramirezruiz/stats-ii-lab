@@ -4,13 +4,13 @@
 
 #### Lab slides 
 
-[![lab_slides](https://user-images.githubusercontent.com/54796579/77463501-00c52280-6e06-11ea-9ce0-066c779c46ea.png)](https://vimeo.com/400334323)
+[![lab_slides](https://user-images.githubusercontent.com/54796579/77463739-6a453100-6e06-11ea-8a50-b464e7a53a87.png)](https://vimeo.com/400334323)
 
 You can click on the slide thumbnail to access the lab slides video on Vimeo
 
 #### Lab script
 
-[![lab_script](https://user-images.githubusercontent.com/54796579/77463739-6a453100-6e06-11ea-8a50-b464e7a53a87.png)](https://vimeo.com/400335084)
+[![lab_script](https://user-images.githubusercontent.com/54796579/77463501-00c52280-6e06-11ea-9ce0-066c779c46ea.png)](https://vimeo.com/400335084)
 
 
 ### Further references
